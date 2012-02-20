@@ -1,0 +1,13 @@
+<node type="computer" id="computer28" netbootable="yes" infrastructure="no" dhcp="None" vendor="" model="" >
+
+	<peripheral type="serial" id="serial6" remoteport="2" />
+	<peripheral type="powerswitch" id="none" remoteport="none" />
+
+
+	<interface type="management" ip="192.168.0.32"
+	subnet="255.255.255.0" mac="00:0a:5e:4d:ec:9e"
+	switch="switch9" port="2"/>
+
+	<physicallocation rackname="desk164" />
+
+</node>

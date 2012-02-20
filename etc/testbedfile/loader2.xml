@@ -1,0 +1,6 @@
+<filenode id="loader2" type="loader" path="/export/loaders/standard/pxeboot60" owner="root" architecture="x86_64" ostype="freebsd" version="6.0" mustclone="yes">
+
+      <md5signature>05d4ebba433bd6b25d8cc96443006e07</md5signature>
+      <description>A basic freebsd 6 loader</description>
+
+</filenode>

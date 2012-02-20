@@ -1,0 +1,146 @@
+.physicallocation-computer 
+{
+  background-color:orange; 
+  font-size:x-small; 
+  font-family:courier
+} 
+
+.physicallocation-server 
+{
+  background-color:green; 
+  font-size:x-small; 
+  font-family:courier
+}
+
+.physicallocation-serial 
+{
+  background-color:pink; 
+  font-size:x-small; 
+  font-family:courier
+}
+
+.physicallocation-powerswitch 
+{
+  background-color:red; 
+  font-size:x-small; 
+  font-family:courier; 
+  cursor:default
+}
+
+.physicallocation-switch 
+{
+  background-color:yellow; 
+  font-size:x-small; 
+  font-family:courier
+}
+
+.physicallocation-router 
+{
+  background-color:lightblue; 
+  font-size:x-small; 
+  font-family:courier
+}
+	
+.physicallocation-empty 
+{
+  background-color:lightgrey; 
+  font-size:x-small
+}
+
+.physicallocation-nodetext 
+{
+  font-family:'trebuchet ms',helvetica,sans-serif; 
+  text-align:center; 
+  cursor:default; 
+  vertical-align: bottom; 
+  font-size:10px; 
+  font-weight:600
+}
+
+.physicallocation-nodeinfotext 
+{
+  font-family:courier; 
+  font-size:small
+}
+
+.physicallocation-leftunitlabel 
+{
+  font-family:'trebuchet ms'; 
+  text-align:right; 
+  cursor:default;
+}
+
+.physicallocation-rightunitlabel 
+{
+  font-family:'trebuchet ms'; 
+  text-align:left; 
+  cursor:default;
+}
+
+.physicallocation-racklabel 
+{
+  font-family:'trebuchet ms',helvetica,sans-serif; 
+  text-align:center; 
+  cursor:default; 
+  font-size:12px
+}
+
+.physicallocation-toggleviewbuttontext 
+{
+  font-family:courier; 
+  text-align:center; 
+  font-size:small; 
+  cursor:default
+}
+
+.physicallocation-verticalnodetext
+{
+  font-family:'trebuchet ms',helvetica,sans-serif; 
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.physicallocation-controlpaneldiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid #666666;
+  background-color: #ccc;
+  padding: 0px;
+}
+
+.physicallocation-simplebuttoninputform
+{
+   color:#000000;
+   font-family:'trebuchet ms',helvetica,sans-serif;
+   font-size:10px;
+   width:75px;
+   height:20px;
+   background-color:white;
+   border: 1px solid #666666;
+}
+
+.physicallocation-boldlabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.physicallocation-simpledropdowninputform
+{
+  background-color: white;
+  border: 1px solid #666666;
+  font-size:10px
+}
+
+.physicallocation-simpletextinputform 
+{
+  background-color: white; 
+  height:15px; 
+  width:120px; 
+  border: 1px solid #666666; 
+  font-size:10px
+}

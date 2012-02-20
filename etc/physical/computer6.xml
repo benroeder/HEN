@@ -1,0 +1,17 @@
+<node type="computer" id="computer6" netbootable="yes" infrastructure="no" vendor="" model="" >
+
+        <physicallocation rackname="desk170" />
+
+	<peripheral type="serial" id="serial6" remoteport="10" />
+	<peripheral type="powerswitch" id="None" remoteport="None" />	
+
+	<interface type="management" ip="192.168.0.8" subnet="255.255.255.0" mac="00:c0:4f:7e:00:e1" switch="switch9" port="10" model="3c905B 100BaseTX [Cyclone]" speed="100" />
+
+
+	<attribute name="motherboard" value="Dell Computer Corporation OptiPlex GX1 333L+" />
+	<attribute name="cputype" value="Pentium II (Deschutes)" />
+	<attribute name="cpuspeed" value="333000000" />
+	<attribute name="numbercpus" value="1" />
+	<attribute name="memory" value="268435456" />
+
+</node>

@@ -1,0 +1,15 @@
+<filenode id="filesystem2" type="filesystem" path="/export/filesystems/fhuici/gentoo-felipe-click2" owner="fhuici" architecture="x86_64" ostype="linux" version="none" mustclone="no">
+
+      <attribute name="distribution" value="gentoo" />
+      <attribute name="netperf" value="1.2" />
+      <attribute name="iperf" value="installed" />
+      <attribute name="click" value="installed" />
+      <attribute name="mii-tool" value="installed" />
+      <attribute name="datecreated" value="02/02/2006" />
+
+      <md5signature>b65123d91bd31893dc3e65a1f3f82b6e</md5signature>
+      <description>Tinker filesystem with click support</description>
+
+      <usermanagement username="root" password="rootpass" />
+
+</filenode>

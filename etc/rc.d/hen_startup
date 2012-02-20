@@ -1,0 +1,50 @@
+#
+# Common functions for HEN startup scripts
+#
+
+is_running() {
+	reply="no"
+	for procnum in `ps aux | grep -v grep | grep python | awk '{ print $2 }'`
+	do
+		if [ "$procnum" = "$1" ] ; then
+			reply="yes"
+		fi
+	done
+	echo $reply
+}
+
+case "$1" in
+start)
+	if [ -r $PID_FILE ] ; then
+		rm $PID_FILE
+	fi
+	$DAEMON_BIN
+        ;;
+stop)
+	if [ -r $PID_FILE ] ; then
+		kill `cat $PID_FILE`
+		rm $PID_FILE
+		echo "$NAME: finished."
+	else
+		echo "pid file not found (check $PID_FILE)"
+	fi
+        ;;
+status)
+	if [ -r $PID_FILE ] ; then
+		pid=`cat $PID_FILE`
+		running=`is_running $pid`
+		if [ $running = "yes" ] ; then
+			echo "$NAME: online"
+		else
+			echo "$NAME: offline (but pid file exists)"
+		fi
+	else
+		echo "$NAME: offline, or pid file missing"
+	fi
+	;;
+*)
+        echo "Usage: `basename $0` {start|stop|status}" >&2
+        ;;
+esac
+
+exit 0

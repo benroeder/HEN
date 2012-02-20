@@ -1,0 +1,22 @@
+<node type="computer" id="computer23" netbootable="yes" infrastructure="no" vendor="" model="">
+
+	<physicallocation building="None" floor="None" room="None" rackrow="None" rackname="rack5" rackstartunit="29" rackendunit="29" position="both" />
+	<peripheral type="serial" id="serial5" remoteport="44" />
+	<peripheral type="powerswitch" id="powerswitch3" remoteport="15" />
+	<peripheral type="serviceprocessor" id="serviceprocessor11" />
+
+	<interface type="management" ip="192.168.0.27" subnet="255.255.255.0" mac="00:13:72:5C:94:42" switch="switch4" port="14" model="82541GI/PI Gigabit Ethernet Controller" speed="100" />
+
+	<interface type="experimental" ip="None" subnet="None" mac="00:0E:0C:B5:FD:7E" switch="switch10" port="18" model="82546EB Gigabit Ethernet Controller" speed="None" />
+	<interface type="experimental" ip="None" subnet="None" mac="00:0E:0C:B5:FD:7F" switch="switch10" port="41" model="82546EB Gigabit Ethernet Controller" speed="None" />
+	<interface type="experimental" ip="None" subnet="None" mac="00:13:72:5C:94:43" switch="None" port="None" model="82541GI/PI Gigabit Ethernet Controller" speed="None" />
+	<interface type="experimental" ip="None" subnet="None" mac="00:0E:0C:B5:FD:92" switch="switch10" port="40" model="82546EB Gigabit Ethernet Controller" speed="None" />
+	<interface type="experimental" ip="None" subnet="None" mac="00:0E:0C:B5:FD:93" switch="switch10" port="17" model="82546EB Gigabit Ethernet Controller" speed="None" />
+
+	<attribute name="motherboard" value="Dell Computer Corporation PowerEdge 1850" />
+	<attribute name="cputype" value="Intel(R) Xeon(TM) CPU 3.00GHz" />
+	<attribute name="memory" value="1073741824" />
+	<attribute name="numbercpus" value="1" />
+	<attribute name="cpuspeed" value="18446744072414584320" />
+
+</node>

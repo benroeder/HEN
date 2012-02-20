@@ -1,0 +1,125 @@
+<topology type="physical">
+
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack1.xml" status="operational" />
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack2.xml" status="operational" />
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack3.xml" status="operational" />
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack4.xml" status="operational" />
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack5.xml" status="operational" />
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack6.xml" status="operational" />
+	<infrastructure type="rack" file="/usr/local/hen/etc/physical/rack7.xml" status="operational" />
+
+
+	<node type="server" file="/usr/local/hen/etc/physical/echidna.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/ibex.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/milton.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/saleem1.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/saleem2.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/saleem3.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/saleem4.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/saleem5.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/server3.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/server2.xml" status="operational" />
+	<node type="server" file="/usr/local/hen/etc/physical/server1.xml" status="operational" />
+
+	<node type="computer" file="/usr/local/hen/etc/physical/computer21.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer22.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer16.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer11.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer13.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer19.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer14.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer9.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer10.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer23.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer8.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer6.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer12.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer20.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer18.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer24.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer25.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer26.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer27.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer28.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer29.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer30.xml" status="operational" />
+	<node type="computer" file="/usr/local/hen/etc/physical/computer31.xml" status="operational" />
+
+	<node type="serial" file="/usr/local/hen/etc/physical/serial1.xml" status="operational" />
+	<node type="serial" file="/usr/local/hen/etc/physical/serial3.xml" status="operational" />
+	<node type="serial" file="/usr/local/hen/etc/physical/serial2.xml" status="operational" />
+	<node type="serial" file="/usr/local/hen/etc/physical/serial5.xml" status="operational" />
+	<node type="serial" file="/usr/local/hen/etc/physical/serial6.xml" status="operational" />
+	<node type="serial" file="/usr/local/hen/etc/physical/serial4.xml" status="operational" />
+
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch5.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch8.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch3.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch2.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch7.xml" status="maintenance" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch9.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch6.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch10.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch1.xml" status="operational" />
+	<node type="powerswitch" file="/usr/local/hen/etc/physical/powerswitch4.xml" status="maintenance" />
+
+	<node type="switch" file="/usr/local/hen/etc/physical/switch14.xml" status="maintenance" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch6.xml" status="maintenance" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch7.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch1.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch3.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch9.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch8.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch4.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch2.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch5.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch10.xml" status="operational" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch11.xml" status="maintenance" />
+	<node type="switch" file="/usr/local/hen/etc/physical/switch12.xml" status="operational" />
+
+
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor8.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor7.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor9.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor10.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor11.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor5.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor2.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor4.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor1.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor3.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor6.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor12.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor13.xml" status="operational" />
+	<node type="serviceprocessor" file="/usr/local/hen/etc/physical/serviceprocessor14.xml" status="operational" />
+	
+	<node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote1.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote2.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote3.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote4.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote5.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote6.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote7.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote8.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote9.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote10.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote11.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote12.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote13.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote14.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote15.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote16.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote17.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote18.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote19.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote20.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote21.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote22.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote23.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote24.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote25.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote26.xml" />
+        <node type="mote" file="/home/arkell/u0/vladidyo/hen_scripts/etc/physical/mote27.xml" />
+
+
+</topology>

@@ -1,0 +1,8 @@
+<filenode id="loader1" type="loader" path="/export/loaders/fhuici/pxelinux.0.0" owner="fhuici" architecture="x86_64" ostype="linux" version="2.6" mustclone="yes">
+
+      <attribute name="distribution" value="" />
+ 
+      <md5signature>aweiofawoefwaieofw</md5signature>
+      <description>My description</description>
+
+</filenode>

@@ -1,0 +1,9 @@
+<topology type="experiment" experimentid="fusball" startdate="20/09/2006" enddate="27/09/2006">
+	<description>fusball</description>
+	<usermanagement username="fhuici" password="f" email="foobar2@email.com"/>
+
+        <node id="computer11" type="computer" cx="232" cy="146">
+             <netbootinfo loader="loader6" filesystem="filesystem2" kernel="kernel3"/>
+        </node>
+
+</topology>

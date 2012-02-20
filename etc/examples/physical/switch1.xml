@@ -1,0 +1,12 @@
+<node type="switch" id="switch1" netbootable="no" infrastructure="yes" vendor="threecom" model="superstack" physicallocation="rack2">
+
+	<peripheral type="serial" id="serial1" remoteport="3" />
+	<peripheral type="switch" id="switch5" localport="1" remoteport="5" />
+
+	<interface type="infrastructure" ip="192.168.1.5" subnet="255.255.255.0" mac="00:90:04:46:9d:18" />
+
+	<attribute name="numports" value="12" />
+        <attribute name="snmpreadcommunity" value="BLANKED-OUT" />
+        <attribute name="snmpwritecommunity" value="BLANKED-OUT" />
+
+</node>

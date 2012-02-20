@@ -1,0 +1,20 @@
+<topology type="experiment" experimentid="experiment10" startdate ="12/01/2007" enddate ="12/01/2007">
+
+	<usermanagement username="dbishop" password="secret" email="d.bishop@cs.ucl.ac.uk" />
+
+	<node type="mote" id = "mote160">
+		<image type="tinyos" name="THENUtilC" />
+		<log type="file" uri="experiment/logs/mote180.log" />
+	</node>
+
+	<node type="mote" id = "mote161">
+		<image type="tinyos" name="THENUtilC" />
+		<log type="file" uri="experiment/logs/mote181.log" />
+	</node>
+
+	<node type="mote" id="mote162">
+		<image type="tinyos" name="THENUtilC" />
+		<log type="file" uri="experiment/logs/mote182.log" />
+	</node>
+	
+</topology> 

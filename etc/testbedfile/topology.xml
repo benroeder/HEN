@@ -1,0 +1,17 @@
+<topology type="testbedfile">
+
+	<filenode type="filesystem" file="/usr/local/hen/etc/testbedfile/filesystem1.xml" status="operational" />
+	<filenode type="filesystem" file="/usr/local/hen/etc/testbedfile/filesystem2.xml" status="operational" />
+
+	<filenode type="kernel" file="/usr/local/hen/etc/testbedfile/kernel1.xml" status="operational" />
+	<filenode type="kernel" file="/usr/local/hen/etc/testbedfile/kernel2.xml" status="operational" />
+	<filenode type="kernel" file="/usr/local/hen/etc/testbedfile/kernel3.xml" status="operational" />
+
+	<filenode type="loader" file="/usr/local/hen/etc/testbedfile/loader1.xml" status="operational" />
+	<filenode type="loader" file="/usr/local/hen/etc/testbedfile/loader2.xml" status="operational" />
+	<filenode type="loader" file="/usr/local/hen/etc/testbedfile/loader3.xml" status="operational" />
+	<filenode type="loader" file="/usr/local/hen/etc/testbedfile/loader4.xml" status="operational" />
+	<filenode type="loader" file="/usr/local/hen/etc/testbedfile/loader5.xml" status="operational" />
+	<filenode type="loader" file="/usr/local/hen/etc/testbedfile/loader6.xml" status="operational" />
+
+</topology>

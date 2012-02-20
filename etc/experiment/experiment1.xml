@@ -1,0 +1,27 @@
+<topology type="experiment" experimentid="experiment2" startdate ="12/01/2007" enddate ="12/01/2007">
+
+	<usermanagement username="mahmed" password="chicken" email="m.ahmed@cs.ucl.ac.uk" />
+
+	<node type="computer" id = "computer3" >		
+		<interface type="experimental" mac="00:01:02:87:84:4B" ip="10.0.0.2" subnet="255.255.255.0" vlan="myexperiment"/>
+		<interface type="experimental" mac="00:01:02:87:84:46"
+		ip="10.0.0.1" subnet="255.255.255.0" vlan="myexperiment" />
+
+		<netbootinfo loader="../../loaders/pxelinux.0" filesystem="../../filesystems/gentoo-new" kernel="../../kernels/kernel.gentoo.vlan2" />
+	</node>
+
+	
+	<node type="computer" id = "computer9" >
+		<interface type="experimental" mac="00:0E:0C:64:2E:09" ip="10.0.0.2" subnet="255.255.255.0" vlan="myexperiment2" />
+		<interface type="experimental" mac="00:0E:0C:64:2E:0A" ip="10.0.0.1" subnet="255.255.255.0" vlan="myexperiment2"/>		
+		
+		<netbootinfo loader="../../loaders/pxelinux.0" filesystem="../../filesystems/gentoo-adam-click-xorp" kernel="../../kernels/kernel.adam.xorp-click" />
+		<startupcommand value="ls -lah" />		
+	</node>
+
+	<node type="router" id="router1">
+		<interface type="experimental" mac="00:01:02:87:83:28" ip="10.0.0.3" subnet="255.255.255.0" vlan="myexperiment"/>
+		<interface type="experimental" mac="00:01:02:87:83:29" ip="10.0.0.4" subnet="255.255.255.0" vlan="myexperiment2"/>
+	</node>
+	           
+</topology> 

@@ -1,0 +1,5 @@
+<topology type="experiment">
+
+   <experiment id="experiment1" file="/usr/local/hen_mote/etc/experiment/experiment1.xml" />
+   
+</topology>

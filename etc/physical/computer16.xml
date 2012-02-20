@@ -1,0 +1,17 @@
+<node type="computer" id="computer16" netbootable="yes" infrastructure="no" vendor="" model="" physicallocation="rack1">
+
+	<peripheral type="serial" id="serial6" remoteport="5" />
+	<peripheral type="powerswitch" id="none" remoteport="none" />
+
+	<interface type="management" ip="192.168.0.20" subnet="255.255.255.0" mac="00:00:24:c5:c8:f0" switch="switch9" port="5" model="DP83815 (MacPhyter) Ethernet Controller" speed="100" />
+
+
+	<attribute name="motherboard" value="Geode by NSC Unknown" />
+	<attribute name="cputype" value="Unknown" />
+	<attribute name="memory" value="134221824" />
+	<attribute name="numbercpus" value="1" />
+	<attribute name="cpuspeed" value="None" />
+
+	<physicallocation rackname="desk178" />
+
+</node>

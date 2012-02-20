@@ -1,0 +1,10 @@
+#!/bin/sh
+
+IPTABLES=/bin/iptables
+SERIAL=Serial
+
+${IPTABLES} --new-chain ${SERIAL}
+${IPTABLES} --append ${SERIAL} --protocol tcp --destination-port 2001:2048 --jump ACCEPT
+${IPTABLES} --append ${SERIAL} --protocol tcp --destination-port 3001:3048 --jump ACCEPT
+${IPTABLES} --append ${SERIAL} --protocol tcp --destination-port 4001:4048 --jump ACCEPT
+${IPTABLES} --append INPUT --jump ${SERIAL}

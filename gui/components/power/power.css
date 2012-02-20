@@ -1,0 +1,61 @@
+.power-simplebuttoninputform
+{
+   color:#000000;
+   font-family:'trebuchet ms',helvetica,sans-serif;
+   font-size:10px;
+   width:100px;
+   height:20px;
+   background-color:white;
+   border: 1px solid #666666;
+}
+
+.power-boldlabel
+{
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.power-normallabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.power-powertable
+{
+  border-width: 1px;
+  border-spacing: 0px;
+  border-style: none;
+  border-color: gray;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.power-powerrow
+{
+  border-width: 0px;
+  padding: 0px;
+  border-style: inset;
+  border-color: gray;
+}
+
+.power-powercell
+{
+  border-width: 1px;
+  padding: 0px;
+  border-style: inset;
+  border-color: gray;
+}
+
+.power-displaypaneldiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid #666666;
+  background-color: white;
+  padding: 0px;
+}
+

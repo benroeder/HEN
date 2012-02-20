@@ -1,0 +1,7 @@
+<topology type="experiment">
+<!--  <experiment id="basketball" file="/usr/local/hen/etc/experiment/basketball.xml" status="active"/>
+  <experiment id="tennis" file="/usr/local/hen/etc/experiment/tennis.xml" status="active" />
+  <experiment id="fusball" file="/usr/local/hen/etc/experiment/fusball.xml" status="active" />
+  <experiment id="squash" file="/usr/local/hen/etc/experiment/squash.xml" status="active" />
+-->
+</topology>

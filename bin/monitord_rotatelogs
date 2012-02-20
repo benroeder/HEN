@@ -1,0 +1,40 @@
+#!/usr/local/bin/python
+"""
+Simple script for use in cron jobs for calling
+the rotate_logs RPC call for the Monitor Daemon
+
+Usage:
+    ./monitord_rotatelogs host port 
+i.e    
+    ./monitord_rotatelogs 127.0.0.1 6666
+"""
+import sys
+import auxiliary.protocol
+
+def handler(code, seq, sz,payload):
+    result = ""
+    if code == 200:
+        result = "OK"
+    else:
+        result = "FAILED"
+    print result + " (" + payload + ")"
+        
+def usage(prog):
+    print "Usage: " + prog + " HOST PORT"
+        
+def main():
+    if len(sys.argv) != 3:
+        usage(sys.argv[0])
+        sys.exit(2)
+    host = str(sys.argv[1])
+    port = int(sys.argv[2])
+    
+    p = auxiliary.protocol.Protocol(None)
+    p.open(host, port)
+    method = "rotate_logs"
+    payload = ""
+    p.sendRequest(method,payload,handler)
+    p.readAndProcess()
+
+if __name__ == "__main__":
+    main()

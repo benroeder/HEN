@@ -1,0 +1,7 @@
+<filenode id="kernel1" type="kernel" path="/export/kernels/standard/machine-detect" owner="root" architecture="x86_64/32" ostype="linux" version="2.6" mustclone="yes">
+
+      <md5signature>098076be3827a0c8cfe627c1e8419f8c</md5signature>
+      <description>The kernel used to detect a machine's hardware, should boot on almost anything</description>
+
+
+</filenode>

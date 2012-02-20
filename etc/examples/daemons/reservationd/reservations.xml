@@ -1,0 +1,9 @@
+<reservations>
+	<reservation id="1" username="fhuici" email="f.huici@cs.ucl.ac.uk" enddate="24/4/2008">
+		<device id="computer68" />
+		<device id="computer78" />
+	</reservation>
+	<reservation id="2" username="fhuici" email="f.huici@cs.ucl.ac.uk" enddate="10/4/2008">
+		<device id="computer69" />
+	</reservation>
+</reservations>

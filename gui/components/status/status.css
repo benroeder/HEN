@@ -1,0 +1,147 @@
+.status-powerbuttontext 
+{
+  font-family:courier; 
+  text-align:center; 
+  font-size:small; 
+  cursor:default;
+}
+
+.status-nodetext
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  text-align:center;
+  cursor:default;
+  vertical-align: bottom;
+  font-size:10px;
+  font-weight:600
+}
+
+.status-nodeinfotext
+{
+  font-family:courier;
+  font-size:small
+}
+
+.status-leftunitlabel
+{
+  font-family:'trebuchet ms';
+  text-align:right;
+  cursor:default;
+}
+
+.status-rightunitlabel
+{
+  font-family:'trebuchet ms';
+  text-align:left;
+  cursor:default;
+}
+
+.status-racklabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  text-align:center;
+  cursor:default;
+  font-size:12px
+}
+
+.status-toggleviewbuttontext
+{
+  font-family:courier;
+  text-align:center;
+  font-size:small;
+  cursor:default
+}
+
+.status-verticalnodetext
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.status-controlpaneldiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid #666666;
+  background-color: #ccc;
+  padding: 0px;
+}
+
+.status-legendpaneldiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid #666666;
+  background-color: #ccc;
+  padding: 0px;
+}
+
+.status-simplebuttoninputform
+{
+   color:#000000;
+   font-family:'trebuchet ms',helvetica,sans-serif;
+   font-size:10px;
+   width:75px;
+   height:20px;
+   background-color:white;
+   border: 1px solid #666666;
+}
+
+.status-boldlabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-simpledropdowninputform
+{
+  background-color: white;
+  border: 1px solid #666666;
+  font-size:10px
+}
+
+.status-legendrectangleoff
+{
+  background-color: white;
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size:10px;
+  width:75px;
+  height:20px;
+  border: 1px solid #666666;
+}
+
+.status-legendrectanglenormal
+{
+  background-color: lightblue;
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size:10px;
+  width:75px;
+  height:20px;
+  border: 1px solid #666666;
+}
+
+.status-legendrectanglewarm
+{
+  background-color: orange;
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size:10px;
+  width:75px;
+  height:20px;
+  border: 1px solid #666666;
+}
+
+.status-legendrectanglehot
+{
+  background-color: red;
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size:10px;
+  width:75px;
+  height:20px;
+  border: 1px solid #666666;
+}

@@ -1,0 +1,750 @@
+#!/usr/bin/env python
+from xml.dom import minidom
+from xml.dom.minidom import Element
+from xml.dom.minidom import Node
+import sys, getpass, os, commands, fileinput, urllib, re, readline, pickle, select
+import auxiliary.protocol
+
+class Completer:
+    def __init__(self, words):
+        self.__words = words
+
+    def setWords(self, words):
+        self.__words = words
+        
+    def complete(self, prefix, index):
+        self.matching_words = [
+            w for w in self.__words if w.startswith(prefix)
+            ]
+        try:
+            return self.matching_words[index]
+        except IndexError:
+            return None
+
+
+class TestbedCommand:
+    
+    def __init__(self, name, cmdType, cmdMode, numberRequiredParams, numberOptionalParams, paramRules, expand):
+        self.__name = name
+        self.__numberRequiredParams = int(numberRequiredParams)
+        self.__numberOptionalParams = numberOptionalParams
+        self.__paramRules = paramRules
+        self.__cmdType = cmdType
+        self.__cmdMode = cmdMode
+        self.__expand = expand
+
+    def getName(self):
+        return self.__name
+
+    def setName(self, name):
+        self.__name = name
+    
+    def getNumberRequiredParams(self):
+        return self.__numberRequiredParams
+
+    def setNumberRequiredParams(self, numberRequiredParams):
+        self.__numberRequiredParams = numberRequiredParams
+        
+    def getNumberOptionalParams(self):
+        return self.__numberOptionalParams
+
+    def setNumberOptionalParams(self, numberOptionalParams):
+        self.__numberOptionalParams = numberOptionalParams
+        
+    def getParamRules(self):
+        return self.__paramRules
+
+    def setParamRules(self, paramRules):
+        self.__paramRules = paramRules
+
+    def getType(self):
+        return self.__cmdType
+
+    def setType(self, cmdType):
+        self.__cmdType = cmdType
+
+    def getMode(self):
+        return self.__cmdMode
+
+    def setMode(self, cmdMode):
+        self.__cmdMode = cmdMode
+
+    def isExpandable(self):
+        return self.__expand
+    
+    def __str__(self):
+        theString = self.__name + " "
+        if (self.__numberRequiredParams > 0):
+            for x in range(1, self.__numberRequiredParams + 1):
+                theString += "[" + str(self.__paramRules[str(x)][1]) + "] "
+                
+        if (self.__numberOptionalParams == "n"):
+            theString += "(plus any number of optional params)"
+        elif (int(self.__numberOptionalParams) > 0):
+            for x in range(self.__numberRequiredParams + 1, \
+            		   self.__numberRequiredParams + \
+            		   int(self.__numberOptionalParams) + 1):
+                theString += "(" + str(self.__paramRules[str(x)][1]) + ") "
+
+        return theString
+
+
+class TestbedClient:
+
+    def __init__(self, serverAddress="localhost", serverPort=56003, useSSL=True):
+        self.__loggedInID = None
+        self.__replyCode = None
+        self.__operationReply = None
+        
+        self.__protocol = auxiliary.protocol.Protocol(None, useSSL)
+        self.__protocol.open(serverAddress, serverPort)
+        self.__protocol.registerMethodHandler("console", self.__consoleInDataHandler)
+
+    def getProtocol(self):
+        return self.__protocol
+
+    def getLoggedInID(self):
+        return self.__loggedInID
+
+    def setLoggedInID(self, loggedInID):
+        self.__loggedInID = loggedInID
+
+    def login(self, username, password):
+        self.__protocol.sendRequest("login", pickle.dumps((username, password)), self.__loginReplyHandler)
+        self.__protocol.readAndProcess()
+        return (self.__replyCode, self.__loggedInID)
+
+    def __loginReplyHandler(self, code, seq, sz, payload):
+        self.__replyCode = code
+        if (code == 200):
+            self.__loggedInID = int(payload)
+        else:
+            self.__loggedInID = None
+
+    def logout(self):
+        self.__protocol.sendRequest("logout", str(self.__loggedInID), self.__logoutReplyHandler)
+        self.__protocol.readAndProcess()
+        return self.__replyCode
+
+    def __logoutReplyHandler(self, code, seq, sz, payload):
+        self.__replyCode = code
+        if (code == 200):
+            self.__loggedInID = None
+
+    def __consoleInDataHandler(self,prot,seq,ln,payload):
+        (code, message) = pickle.loads(payload)
+        if (code != 200):
+            print str(code) + ":", message
+        elif (message != ""):
+            sys.stdout.softspace = 0            
+            print message,
+            sys.stdout.flush()            
+
+    def executeOperationAsync(self, operation, opType, parameters):
+        self.__protocol.sendRequest(opType, \
+                                    pickle.dumps((self.__loggedInID, operation, parameters)), \
+                                    self.__operationReplyHandler)
+        
+    def executeOperation(self, operation, opType, parameters):
+        if (not self.__loggedInID):
+            return (400, "")
+
+        self.__protocol.sendRequest(opType, \
+                                    pickle.dumps((self.__loggedInID, operation, parameters)), \
+                                    self.__operationReplyHandler)
+        self.__protocol.readAndProcess()
+        return (self.__operationReply[0], self.__operationReply[3])
+
+    def __operationReplyHandler(self, code, seq, sz, payload):
+        self.__operationReply = (code, seq, sz, payload)
+
+
+class CLI:
+
+    def __init__(self, commandsFile="commands.xml",\
+                 url="http://arkell.cs.ucl.ac.uk/hen/", cliPrompt="hen>", \
+                 testbedAddress="server1.infrastructure-hen-net", testbedPort=56003, \
+                 useSSL=True):
+        self.__commandsFile = commandsFile
+        self.__cliPrompt = cliPrompt
+        self.__url = url + commandsFile
+        self.__testbedAddress = testbedAddress        
+        self.__testbedCommands = {}
+        self.__nodeCommands = {}
+        self.__vlanCommands = {}
+        self.__client = None
+        self.__testbedPort = testbedPort
+        self.__config = None
+        self.__loggedInID = None
+        self.__backspaceChar = "\b"
+        self.__mode = "main"
+        self.__currentNodeID = None
+        self.__currentVlanID = None
+        self.__consoleReady = None
+        self.__useSSL = useSSL
+        self.__completer = None
+        self.__isUserNodeOwner = False
+        self.__doesVlanExist = False
+        self.__vlanCommandMappings = {'add': 'add_vlan_ports', \
+                                      'remove': 'remove_vlan_ports', \
+                                      'delete': 'delete_vlan', \
+                                      'show': 'show_vlan'} 
+        
+    def runit(self):
+        # Download/update commands file
+        try:
+            self.__downloadFile(self.__url)
+        except:
+            print "error while retrieving commands file"
+            os._exit(1)
+            
+        # Read and parse commands file
+        try:
+            self.__parseTestbedCommands()
+        except Exception,e:
+            print "error while parsing commands file:" + str(e)
+            os._exit(1)
+
+        # Set up auto-complete for commands
+        self.__completer = Completer(self.__testbedCommands.keys())
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(self.__completer.complete)
+        
+        # Read config file
+        self.__configFile = None
+        try:
+            self.__configFile = os.environ['HOME'] + "/.hen"
+        except:
+            self.__configFile = ".hen"
+
+        # Check for session id from previous login
+        self.__loggedInID = self.__getPreviousLogin()
+
+        # Connect to testbed
+        self.__client = TestbedClient(self.__testbedAddress, self.__testbedPort, self.__useSSL)
+        
+        # If user session not in config file, ask user to login and save logged 
+        # in id if login is correct
+        if (not self.__loggedInID):
+            self.__loggedInID = self.__login()
+        else:
+            self.__client.setLoggedInID(self.__loggedInID)
+            
+        print "logged in"
+
+        # Main loop
+        cmd = None
+        while(1):
+            try:
+                if (self.__mode == "main"):
+                    self.__completer.setWords(self.__testbedCommands.keys())
+                    sys.stdout.softspace = 0                    
+                    cmd = raw_input("hen> ").strip().split(" ")
+                    self.__processCommand(cmd)
+                elif (self.__mode == "console"):
+                    self.__completer.setWords([])
+                    self.__processConsole(cmd)
+                    self.__mode = "main"
+                    self.__cliPrompt = "hen>"
+                elif (self.__mode == "node"):
+                    self.__completer.setWords(self.__nodeCommands.keys())
+                    self.__isUserNodeOwner = False
+                    while (1):
+                        # Re-login or user does not own node
+                        if (self.__processNodeCommand(cmd) == -1):
+                            break
+                        cmd = raw_input(str(self.__currentNodeID) + "> ").strip().split(" ")                        
+                        if (cmd[0] == "exit"):
+                            break                        
+                    self.__mode = "main"
+                    self.__cliPrompt = "hen>"
+                elif (self.__mode == "vlan"):
+                    self.__completer.setWords(self.__vlanCommands.keys())
+                    self.__doesVlanExist = False
+                    while (1):
+                        # Re-login or user does not own node
+                        if (self.__processVlanCommand(cmd) == -1):
+                            break
+                        cmd = raw_input("vlan " + str(self.__currentVlanID) + "> ").strip().split(" ")
+                        if (cmd[0] == "exit"):
+                            break
+                    self.__mode = "main"
+                    self.__cliPrompt = "hen>"
+                    
+            except KeyboardInterrupt:
+                return
+
+    def __getCmdType(self, cmd):
+        for dictionary in self.__testbedCommands, self.__nodeCommands, self.__vlanCommands:
+            if (dictionary.has_key(cmd)):
+                return dictionary[cmd].getType()
+        print "Command type not found"
+        return None
+            
+    def __exractNumber(self, theString):
+        if (len(theString) == 0):
+            return ("", -1)
+
+        digits = "0123456789"
+
+        # Find index of first number
+        counter = 0
+        while (digits.find(theString[counter]) == -1):
+            counter += 1
+            if ((counter > len(theString) - 1) or (counter > 100) ):
+                return ("", -1)
+
+        return (theString[:counter], int(theString[counter:]))
+
+    def __isExpandable(self, cmd):
+        for dictionary in self.__testbedCommands, self.__nodeCommands, self.__vlanCommands:
+            if (dictionary.has_key(cmd)):
+                return dictionary[cmd].isExpandable()
+        
+    def __expandCommand(self, userCommand):
+        # Only expand dashes for commands that allow it
+        if (not self.__isExpandable(userCommand[0])):
+            return (0, 0, userCommand)
+        
+        parameterNumber = 1
+        expandedCommands = []
+        for parameter in userCommand:
+            count = parameter.count("-")
+            # We have parameters to expand
+            if (count > 0):
+                # Too many dashes, invalid
+                if (count > 1):
+                    return (-1, parameterNumber, None)
+                # Correct, expand and add to result
+                else:
+                    beginItem = parameter[:parameter.find("-")]
+                    endItem = parameter[parameter.find("-") + 1:]
+                    (beginString, beginNumber) = self.__extractNumber(beginItem)
+                    (endString, endNumber) = self.__extractNumber(endItem)
+
+                    if (beginNumber == -1 or endNumber == -1):
+                        return (-2, parameterNumber, None)
+
+                    if (beginString != endString):
+                        return (-3, parameterNumber, None)
+
+                    for x in range(beginNumber, endNumber + 1):
+                        expandedCommands.append(beginString + str(x))
+
+            # This parameter requires no expansion, just add it to result
+            else:
+                expandedCommands.append(parameter)
+
+            parameterNumber += 1
+
+        return (0, 0, expandedCommands)
+    
+    def __processCommand(self, userCommand):
+        # Expand dashes
+        (returnCode, paramNumber, userCommand) = \
+        				self.__expandCommand(userCommand)
+        if (returnCode == -1):
+            print "invalid use of dashes in parameter", paramNumber
+            return
+        elif (returnCode == -2):
+            print "values on both sides of dash must have numbers in parameter", paramNumber
+            return
+        elif (returnCode == -3):
+            print "item names must match in parameter", paramNumber
+            return
+        
+        # Command ok, send request and print reply (if not, isValidCommand 
+        # takes care of printing error messages)
+        if (self.__isValidCommand(userCommand, self.__testbedCommands)):
+
+            # Handle "local" commands
+            if (userCommand[0] == "help"):
+                try:
+                    self.__printHelp(userCommand[1])
+                except:
+                    self.__printHelp()
+                return
+            elif (userCommand[0] == "exit"):
+                os._exit(1)
+            # Handle modes
+            elif (userCommand[0] == "console"):
+                self.__mode = "console"
+                return
+            elif (userCommand[0] == "node"):
+                self.__mode = "node"
+                self.__currentNodeID = userCommand[1]
+                return
+            elif (userCommand[0] == "vlan"):
+                self.__mode = "vlan"
+                self.__currentVlanID = userCommand[1]
+                return
+            else:
+                (returnCode, payload) = self.__client.executeOperation(userCommand[0], \
+                                                                       self.__getCmdType(userCommand[0]),
+                                                                       userCommand[1:])
+
+                # Need to re-login user
+                if (returnCode == 400):
+                    self.__login()
+                    return
+
+                # Print results
+                results = pickle.loads(payload)
+		for result in results:
+                    (target, returnCode, msg) = result
+                    print str(target) + ": " + str(msg)
+
+    def __processVlanCommand(self, userCommand):
+        # Expand dashes                                                                                                                      
+        (returnCode, paramNumber, userCommand) = \
+                                        self.__expandCommand(userCommand)
+        if (returnCode == -1):
+            print "invalid use of dashes in parameter", paramNumber
+        elif (returnCode == -2):
+            print \
+                "values on both sides of dash must have numbers in parameter",\
+                paramNumber
+        elif (returnCode == -3):
+            print "item names must match in parameter", paramNumber
+
+        # Command ok, send request and print reply (if not, isValidCommand
+        # takes care of printing error messages)
+        if (userCommand[0] == "vlan" or self.__isValidCommand(userCommand, self.__nodeCommands)):
+
+            if (userCommand[0] == "exit"):
+                return
+            
+            # First verify that user vlan exists
+            if (not self.__doesVlanExist):
+                (returnCode, returnDescription) = self.__client.executeOperation("create_vlan", \
+                                                                                 "control",
+                                                                                 (userCommand[1], ""))
+                # Need to re-login user
+                if (returnCode == 400):
+                    self.__login()
+                    self.__mode = "main"
+                    return -1
+
+                # Vlan did not already exist and could not be created
+                if (returnCode != 200):
+                    print returnDescription
+                    return -1
+                else:
+                    self.__doesVlanExist = True
+                    return 0
+
+            # Vlan created, accept further commands
+            (returnCode, returnDescription) = self.__client.executeOperation(self.__vlanCommandMappings[userCommand[0]], \
+                                                                             self.__getCmdType(userCommand[0]),
+                                                                             userCommand)
+            if (returnDescription != None and returnDescription != ""):
+                print str(returnCode) + ":" + returnDescription
+            else:
+                print str(returnCode)
+
+    def __processNodeCommand(self, userCommand):
+        # Expand dashes
+        (returnCode, paramNumber, userCommand) = \
+        				self.__expandCommand(userCommand)
+        if (returnCode == -1):
+            print "invalid use of dashes in parameter", paramNumber
+        elif (returnCode == -2):
+            print \
+            	"values on both sides of dash must have numbers in parameter",\
+            	paramNumber
+        elif (returnCode == -3):
+            print "item names must match in parameter", paramNumber
+
+        # Command ok, send request and print reply (if not, isValidCommand 
+        # takes care of printing error messages)
+        if (userCommand[0] == "node" or self.__isValidCommand(userCommand, self.__nodeCommands)):
+
+            if (userCommand[0] == "exit"):
+                return
+
+            # First verify that user owns node
+            if (not self.__isUserNodeOwner):
+                (returnCode, returnDescription) = self.__client.executeOperation("is_owner", \
+                                                                                 "control",
+                                                                                 (userCommand[1], ""))
+                # Need to re-login user
+                if (returnCode != 200):
+                    self.__login()
+                    self.__mode = "main"
+                    return -1
+
+                # User does not own node
+                if (returnDescription == "False"):
+                    print "you do not own the requested node"
+                    return -1
+                else:
+                    self.__isUserNodeOwner = True
+                    return 0
+
+            # User owns node, accept commands. Prepend node id to parameters
+            commands = [self.__currentNodeID]
+            for parameter in userCommand:
+                commands.append(parameter)
+            (returnCode, returnDescription) = self.__client.executeOperation("node", \
+                                                                             self.__getCmdType(userCommand[0]),
+                                                                             commands)
+
+            if (returnCode != 200):
+                print str(returnCode) + ":" + returnDescription
+            else:
+                print str(returnDescription)
+    
+    def __processConsole(self, userCommand):
+        """ Note that open/close operations are done synchronously through self.__client.executeOperation
+            forward, on the other hand, is asynchronous, so executeOperation is not used
+        """
+        # Expand dashes
+        (returnCode, paramNumber, userCommand) = self.__expandCommand(userCommand)
+        protocol = self.__client.getProtocol()
+        sockNumber = protocol.getFileNumber()
+        sock = protocol.getSocket()
+        
+        if (not self.__isUserNodeOwner):
+            (returnCode, returnDescription) = self.__client.executeOperation("is_owner", \
+                                                                             "control",
+                                                                             (userCommand[1], ""))
+            # Need to re-login user
+            if (returnCode != 200):
+                self.__login()
+                self.__mode = "main"
+                return -1
+
+            # User does not own node
+            if (returnDescription == "False"):
+                print "you do not own the requested node, acquire it first"
+                return -1
+            else:
+                self.__isUserNodeOwner = True
+                self.__currentNodeID = userCommand[1]
+                commands = ["open", self.__currentNodeID, ""]
+                print "opening console..."
+                (returnCode, returnDescription) = self.__client.executeOperation("console", \
+                                                                                 "control",
+                                                                                 commands)
+                if (returnCode != 200):
+                    print "error while opening console"
+                    return -1
+
+        readers = [sys.stdin, sockNumber]
+        writers = []
+        errors = [sys.stdin, sockNumber]
+
+        print "console ready (type ~~. [Enter] to exit)"
+
+        while 1:
+            readyToRead, readyToWrite, inError = select.select(readers, writers, errors)
+
+            # Read input from user
+            if (sys.stdin in readyToRead):
+                cmd = sys.stdin.readline()
+                if (cmd == "~~.\n"):
+                    commands = ["close", self.__currentNodeID, ""]
+                    print "closing console..."                    
+                    (returnCode, returnDescription) = self.__client.executeOperation("console", \
+                                                                                     "control",
+                                                                                     commands)                    
+                    if (returnCode != 200):
+                        print "error while closing console"
+                    return
+                else:
+                    commands = ["forward", self.__currentNodeID, cmd]
+                    self.__client.executeOperationAsync("console", "control", commands)
+
+            # Receive data from console daemon
+            elif (sockNumber in readyToRead):
+                data = None
+                if (self.__useSSL):
+                    data = sock.read(1000000)
+                else:
+                    data = sock.recv(1000000,0)
+                protocol.processPacket(data)
+                                 
+    def __isValidCommand(self, userCommand, commandsDictionary):
+        if (len(userCommand) < 1):
+            return False
+
+        userCommandName = userCommand[0]
+        if (not commandsDictionary.has_key(userCommandName)):
+            print "unknown command"
+            return False
+
+        command = commandsDictionary[userCommandName]
+        regExpRules = command.getParamRules()
+        numberRequiredParams = command.getNumberRequiredParams()
+        numberOptionalParams = command.getNumberOptionalParams()
+
+        if (numberRequiredParams == 0):
+            return True
+
+        # Make sure that there are enough required parameters given 
+        # (+1 because of the command itself)
+        if (len(userCommand) < numberRequiredParams + 1):
+            print "missing parameter(s)"
+            return False
+        
+        # Verify required parameters
+        for x in range(1, numberRequiredParams + 1):
+            regExp = re.compile(regExpRules[str(x)][0])
+            if (not regExp.match(userCommand[x])):
+                print "invalid string for required parameter", x, \
+                	regExpRules[str(x)][1]
+                return False
+
+        # Verify optional parameters
+        if (numberOptionalParams == "n"):
+            for x in range(numberRequiredParams + 1, len(userCommand)):
+                regExp = re.compile(regExpRules["n"][0])
+                if (not regExp.match(userCommand[x])):
+                    print "invalid string for optional parameter", x                    
+                    return False
+        else:
+            for x in range(numberRequiredParams + 1, numberRequiredParams + \
+            		int(numberOptionalParams)+1):
+                regExp = re.compile(regExpRules[x][0])
+                if (not regExp.match(userCommand[x])):
+                    print "invalid string for optional parameter", x                    
+                    return False
+
+        return True
+
+    def __parseTestbedCommands(self):
+        xmldoc = minidom.parse(self.__commandsFile)
+        commandXML = xmldoc.getElementsByTagName("testbedcommands")[0].\
+        					getElementsByTagName("command")
+
+        for command in commandXML:
+            name = command.attributes["name"].value
+            cmdType = command.attributes["type"].value
+            cmdMode = command.attributes["mode"].value
+            expand = command.attributes["expand"].value
+            if (expand == "yes"):
+                expand = True
+            else:
+                expand = False
+                
+            numberRequiredParams = \
+            	command.attributes["requiredparameters"].value
+            numberOptionalParams = \
+            	command.attributes["optionalparameters"].value
+
+            paramRules = {}
+            for parameter in command.getElementsByTagName("parameter"):
+                parameterNumber = parameter.attributes["number"].value
+                regExp = parameter.attributes["regexp"].value
+                regExpAlias = parameter.attributes["regexpalias"].value
+                paramRules[parameterNumber] = (regExp, regExpAlias)
+
+            cmd = TestbedCommand(name, cmdType, cmdMode, numberRequiredParams, numberOptionalParams, paramRules, expand)
+            if (cmdMode == "main"):
+                self.__testbedCommands[name] = cmd
+            elif (cmdMode == "node"):
+                self.__nodeCommands[name] = cmd
+            elif (cmdMode == "vlan"):
+                self.__vlanCommands[name] = cmd  
+            else:
+                print "unrecognized mode for command", name
+
+    def __downloadFile(self, url):
+        i = url.rfind('/')
+        theFile = url[i + 1:]
+        urllib.urlretrieve(url, theFile)
+
+    def __printHelp(self, command=None):
+        print "\n[] : required parameter   () : optional parameter"
+        print "you may use a dash ('-') character to enumerate several items"
+        print "-------------------------------------------------------------------\n"
+
+        if (command != None):
+            if (self.__testbedCommands.has_key(command)):
+                print self.__testbedCommands[command], "\n"
+                return
+            if (self.__nodeCommands.has_key(command)):
+                print self.__nodeCommands[command], "\n"
+                return
+            if (self.__vlanCommands.has_key(command)):
+                print self.__vlanCommands[command], "\n"
+                return
+            print "unknown command", command
+            return
+        
+        print "Main mode:"
+        print "-----------------"
+        for testbedCommand in self.__testbedCommands.values():
+            print testbedCommand
+
+        print "\nNode mode:"
+        print "-----------------"
+        for nodeCommand in self.__nodeCommands.values():
+            print nodeCommand
+
+        print "\nVlan mode:"
+        print "-----------------"
+        for vlanCommand in self.__vlanCommands.values():
+            print vlanCommand
+
+        print "\n"
+                                        
+    def __login(self):
+        print "session expired or does not exist, please login"
+        while(1):
+            username = raw_input("login: ").strip()
+            password = getpass.getpass("password: ").strip()
+
+            (returnCode, loggedInID) = self.__client.login(username, password)
+
+            if (returnCode != 200):
+                print "invalid login, please try again"
+            else:
+                try:
+                    # If file exists, just update the logged-in id
+                    if (commands.getstatusoutput("ls " + \
+                    		self.__configFile)[0] == 0):
+                        found = False
+                        for line in fileinput.input([self.__configFile], 1):
+                            if (line.find("loggedinid") != -1):
+                                print "loggedinid =", loggedInID
+                                found = True
+                            else:
+                                print line
+                            
+                        # File did not contain loggedinid line, add it
+                        if (not found):
+                            theFile = open(self.__configFile, "a")
+                            theFile.write("loggedinid = %s\n" % str(loggedInID))
+                            theFile.close()
+                        
+                    # Create file with logged-in id
+                    else:
+                        theFile = open(self.__configFile, "w")
+                        theFile.write("loggedinid = " + str(loggedInID) + "\n")
+                        theFile.close()
+                except:
+                    pass
+            
+                return loggedInID
+
+    def __getPreviousLogin(self):
+        try:
+            if (commands.getstatusoutput("ls " + self.__configFile)[0] == 0):
+                theFile = open(self.__configFile, "r")
+                for line in theFile.readlines():
+                    if (line.find("loggedinid") != -1):
+                        loggedInID = int(line[line.find("=") + 1:])
+                        theFile.close()
+                        return loggedInID
+        except:
+            pass
+    
+        return None
+
+########################################################################
+# MAIN EXECUTION
+########################################################################
+if __name__ == "__main__":
+    cli = CLI()
+    cli.runit()

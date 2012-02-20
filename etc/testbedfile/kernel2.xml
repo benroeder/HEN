@@ -1,0 +1,7 @@
+<filenode id="kernel2" type="kernel" path="/export/kernels/standard/kernel.soekris" owner="root" architecture="x86_64" ostype="linux" version="2.6" mustclone="yes">
+
+      <md5signature>06d747ee96ae89f45e1425af6f538f7c</md5signature>
+      <description>The kernel used to boot a soekris box with</description>
+
+
+</filenode>

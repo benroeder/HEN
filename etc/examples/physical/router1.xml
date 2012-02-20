@@ -1,0 +1,11 @@
+<node type="router" id="router1" netbootable="no" infrastructure="no" vendor="procket" model="8801" physicallocation="rack3">
+
+	<peripheral type="serial" id="serial1" remoteport="20" />
+
+	<interface type="management" ip="192.168.0.14" subnet="255.255.255.0" mac="00:01:02:87:83:27" />
+
+
+	<attribute name="operatingsystemversion" value="0.1" />
+	<attribute name="operatingsystemtype" value="procket" />
+
+</node>

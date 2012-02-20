@@ -1,0 +1,8 @@
+<filenode id="loader6" type="loader" path="/export/loaders/adam/pxelinux.0" owner="adam" architecture="x86_64" ostype="linux" version="2.6" mustclone="no">
+
+      <attribute name="distribution" value="" />
+ 
+      <md5signature>ec57ae03ec5f260d04a2e56236bcaa2c</md5signature>
+      <description>a very basic linux loader</description>
+
+</filenode>

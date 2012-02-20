@@ -1,0 +1,15 @@
+<filenode id="filesystem1" type="filesystem" path="/export/filesystems/fhuici/gentoo-felipe-click2" owner="fhuici" architecture="x86_64" ostype="linux" version="none" mustclone="yes">
+
+      <attribute name="distribution" value="gentoo" />
+      <attribute name="netperf" value="1.2" />
+      <attribute name="iperf" value="installed" />
+      <attribute name="click" value="installed" />
+      <attribute name="mii-tool" value="installed" />
+      <attribute name="datecreated" value="02/02/2006" />
+
+      <md5signature>aweiofawoefwaieofw</md5signature>
+      <description>My description</description>
+
+      <usermanagement username="root" password="rootpass" />
+
+</filenode>

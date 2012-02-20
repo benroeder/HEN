@@ -1,0 +1,6 @@
+#!/usr/local/bin/bash
+
+sudo hm dnsserver create
+sudo hm dnsserver restart
+sudo hm dhcpserver create
+sudo hm dhcpserver restart

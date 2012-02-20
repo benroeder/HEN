@@ -1,0 +1,9 @@
+<topology type="experiment">
+
+<experimentnode type="computer" id="hen5" username="mahmed" email="m.ahmed@cs.ucl.ac.uk" experimentid="experiment" startdate="01/01/2007" enddate="10/01/2007" />
+<experimentnode type="computer" id="hen4" username="mahmed" email="m.ahmed@cs.ucl.ac.uk" experimentid="experiment2" startdate="01/01/2007" enddate="10/01/2007" />
+<experimentnode type="router" id="router1" username="mahmed" email="m.ahmed@cs.ucl.ac.uk" experimentid="myid" startdate="12/01/2007" enddate="12/01/2007" />
+<experimentnode type="computer" id="hen4" username="mahmed" email="m.ahmed@cs.ucl.ac.uk" experimentid="myid" startdate="12/01/2007" enddate="12/01/2007" />
+<experimentnode type="computer" id="hen3" username="mahmed" email="m.ahmed@cs.ucl.ac.uk" experimentid="myid" startdate="12/01/2007" enddate="12/01/2007" />
+
+</topology>

@@ -1,0 +1,13 @@
+<node type="computer" id="computer25" netbootable="yes" infrastructure="no" dhcp="None" vendor="" model="" >
+
+	<peripheral type="serial" id="serial6" remoteport="3" />
+	<peripheral type="powerswitch" id="none" remoteport="none" />
+
+
+	<interface type="management" ip="192.168.0.29"
+	subnet="255.255.255.0" mac="00:00:24:C6:44:B8"
+	switch="switch9" port="3"/>
+
+	<physicallocation rackname="7.06" />
+
+</node>

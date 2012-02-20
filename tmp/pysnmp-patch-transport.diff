@@ -1,0 +1,46 @@
+--- ../../pysnmp-4.1.6a/pysnmp/v4/entity/rfc3413/oneliner/cmdgen.py	2006-05-25 09:36:29.000000000 -0500
++++ pysnmp/v4/entity/rfc3413/oneliner/cmdgen.py	2006-10-28 16:34:36.546875000 -0500
+@@ -61,13 +61,15 @@
+             
+ class UdpTransportTarget:
+     transportDomain = udp.domainName
+-    transport = udp.UdpSocketTransport().openClientMode()
++    #transport = udp.UdpSocketTransport().openClientMode()
++    
+     retries = timeout = None  # XXX
+     def __init__(self, transportAddr):
+         self.transportAddr = (
+             socket.gethostbyname(transportAddr[0]), transportAddr[1]
+             )
+-
++        self.transport = None;
++        
+ class AsynCommandGenerator:
+     _null = univ.Null('')
+     def __init__(self, snmpEngine=None):
+@@ -81,6 +83,7 @@
+         self.__knownAuths = {}
+         self.__knownTransports = {}
+         self.__knownTransportAddrs = {}
++        self.transport = udp.UdpSocketTransport().openClientMode()
+ 
+     def _configure(self, authData, transportTarget, tagList=''):
+         paramsName = '%s-params' % (authData.securityName,)
+@@ -111,13 +114,13 @@
+                 raise error.PySnmpError('Unsupported SNMP version')
+             self.__knownAuths[authData] = 1
+ 
+-        if not self.__knownTransports.has_key(transportTarget.transport):
++        if not self.__knownTransports.has_key(self.transport):
+             config.addSocketTransport(
+                 self.snmpEngine,
+                 transportTarget.transportDomain,
+-                transportTarget.transport
++                self.transport
+                 )
+-            self.__knownTransports[transportTarget.transport] = 1
++            self.__knownTransports[self.transport] = 1
+             
+         addrName = str(transportTarget.transportAddr)
+         if not self.__knownTransportAddrs.has_key(addrName):
+

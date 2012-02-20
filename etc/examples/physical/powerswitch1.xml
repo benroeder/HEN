@@ -1,0 +1,11 @@
+<node type="powerswitch" id="powerswitch1" netbootable="no" infrastructure="yes" vendor="blackbox" model="master" physicallocation="rack2">
+
+	<peripheral type="serial" id="serial1" remoteport="22" />
+
+	<interface type="infrastructure" ip="192.168.1.4" subnet="255.255.255.0" mac="00:01:9A:F1:13:18" />
+
+	<usermanagement username="BLANKED-OUT" password="BLANKED-OUT" />
+
+	<attribute name="numports" value="8" />
+
+</node>

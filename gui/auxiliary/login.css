@@ -1,0 +1,51 @@
+.login-submitbuttontext 
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  background-color:white; 
+  text-align:center; 
+  font-size:11px; 
+  cursor:default
+}
+
+.login-inputform 
+{
+  background-color: white; 
+  height:20px; 
+  width:175px; 
+  border: 1px solid #666666; 
+}
+
+.login-maindiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 0px;
+  background-color: white;
+  padding: 0px;
+}
+
+.login-labeltitle
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: bolder;
+}
+
+.login-labeldisclaimer
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 9px;
+  font-weight: bold;
+}
+
+
+.login-table
+{
+  border-width: 0px;
+  border-spacing: 0px;
+  border-style: none;
+  background-color: white;
+}
+

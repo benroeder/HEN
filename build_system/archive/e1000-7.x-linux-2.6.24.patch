@@ -1,0 +1,477 @@
+Index: click-git-20080715-idd/drivers/e1000-7.x/src/e1000_main.c
+===================================================================
+--- click-git-20080715-idd.orig/drivers/e1000-7.x/src/e1000_main.c	2008-10-10 17:29:16.743626674 +0100
++++ click-git-20080715-idd/drivers/e1000-7.x/src/e1000_main.c	2008-10-10 17:31:47.000000000 +0100
+@@ -182,7 +182,8 @@
+ static boolean_t e1000_clean_tx_irq(struct e1000_adapter *adapter,
+                                     struct e1000_tx_ring *tx_ring);
+ #ifdef CONFIG_E1000_NAPI
+-static int e1000_clean(struct net_device *poll_dev, int *budget);
++//static int e1000_clean(struct net_device *poll_dev, int *budget);
++static int e1000_clean(struct napi_struct *napi, int budget);
+ static boolean_t e1000_clean_rx_irq(struct e1000_adapter *adapter,
+                                     struct e1000_rx_ring *rx_ring,
+                                     int *work_done, int work_to_do);
+@@ -213,7 +214,8 @@
+ static void e1000_enter_82542_rst(struct e1000_adapter *adapter);
+ static void e1000_leave_82542_rst(struct e1000_adapter *adapter);
+ static void e1000_tx_timeout(struct net_device *dev);
+-static void e1000_reset_task(struct net_device *dev);
++//static void e1000_reset_task(struct net_device *dev);
++static void e1000_reset_task(struct work_struct *work);
+ static void e1000_smartspeed(struct e1000_adapter *adapter);
+ static int e1000_82547_fifo_workaround(struct e1000_adapter *adapter,
+                                        struct sk_buff *skb);
+@@ -447,7 +449,8 @@
+ 	uint16_t vid = adapter->hw.mng_cookie.vlan_id;
+ 	uint16_t old_vid = adapter->mng_vlan_id;
+ 	if (adapter->vlgrp) {
+-		if (!adapter->vlgrp->vlan_devices[vid]) {
++/*		if (!adapter->vlgrp->vlan_devices[vid]) {*/
++if (!vlan_group_get_device(adapter->vlgrp, vid)) {
+ 			if (adapter->hw.mng_cookie.status &
+ 				E1000_MNG_DHCP_COOKIE_STATUS_VLAN_SUPPORT) {
+ 				e1000_vlan_rx_add_vid(netdev, vid);
+@@ -457,7 +460,8 @@
+ 
+ 			if ((old_vid != (uint16_t)E1000_MNG_VLAN_NONE) &&
+ 					(vid != old_vid) &&
+-					!adapter->vlgrp->vlan_devices[old_vid])
++					!vlan_group_get_device(adapter->vlgrp, old_vid))
++/*					!adapter->vlgrp->vlan_devices[old_vid])*/
+ 				e1000_vlan_rx_kill_vid(netdev, old_vid);
+ 		} else
+ 			adapter->mng_vlan_id = vid;
+@@ -626,7 +630,9 @@
+ 	adapter->tx_queue_len = netdev->tx_queue_len;
+ 
+ #ifdef CONFIG_E1000_NAPI
+-	netif_poll_enable(netdev);
++    //	netif_poll_enable(netdev);
++        napi_disable(&adapter->napi);
++        atomic_set(&adapter->irq_sem, 0);
+ #endif
+ 	e1000_irq_enable(adapter);
+ 
+@@ -723,7 +729,9 @@
+ 	del_timer_sync(&adapter->phy_info_timer);
+ 
+ #ifdef CONFIG_E1000_NAPI
+-	netif_poll_disable(netdev);
++	//	netif_poll_disable(netdev);
++        napi_disable(&adapter->napi);
++        atomic_set(&adapter->irq_sem, 0);
+ #endif
+ 	netdev->tx_queue_len = adapter->tx_queue_len;
+ 	adapter->link_speed = 0;
+@@ -984,7 +992,7 @@
+ 	if (!netdev)
+ 		goto err_alloc_etherdev;
+ 
+-	SET_MODULE_OWNER(netdev);
++	//SET_MODULE_OWNER(netdev);
+ 	SET_NETDEV_DEV(netdev, &pdev->dev);
+ 
+ 	pci_set_drvdata(pdev, netdev);
+@@ -1026,8 +1034,9 @@
+ 	netdev->watchdog_timeo = 5 * HZ;
+ #endif
+ #ifdef CONFIG_E1000_NAPI
+-	netdev->poll = &e1000_clean;
+-	netdev->weight = 64;
++	//	netdev->poll = &e1000_clean;
++	//	netdev->weight = 64;
++	netif_napi_add(netdev, &adapter->napi, e1000_clean, 64);
+ #endif
+ #ifdef NETIF_F_HW_VLAN_TX
+ 	netdev->vlan_rx_register = e1000_vlan_rx_register;
+@@ -1169,9 +1178,10 @@
+ 	adapter->phy_info_timer.function = &e1000_update_phy_info;
+ 	adapter->phy_info_timer.data = (unsigned long) adapter;
+ 
+-	INIT_WORK(&adapter->reset_task,
+-		(void (*)(void *))e1000_reset_task, netdev);
+-
++	//INIT_WORK(&adapter->reset_task,
++	//	  (void (*)(void *))e1000_reset_task);
++	INIT_WORK(&adapter->reset_task, e1000_reset_task);
++       
+ 	e1000_check_options(adapter);
+ 
+ 	/* Initial Wake on LAN setting
+@@ -1450,8 +1460,8 @@
+ #ifdef CONFIG_E1000_NAPI
+ 	for (i = 0; i < adapter->num_rx_queues; i++) {
+ 		adapter->polling_netdev[i].priv = adapter;
+-		adapter->polling_netdev[i].poll = &e1000_clean;
+-		adapter->polling_netdev[i].weight = 64;
++		//adapter->polling_netdev[i].poll = &e1000_clean;
++		//adapter->polling_netdev[i].weight = 64;
+ 		dev_hold(&adapter->polling_netdev[i]);
+ 		set_bit(__LINK_STATE_START, &adapter->polling_netdev[i].state);
+ 	}
+@@ -1606,7 +1616,8 @@
+ 	if ((adapter->hw.mng_cookie.status &
+ 			  E1000_MNG_DHCP_COOKIE_STATUS_VLAN_SUPPORT) &&
+ 	     !(adapter->vlgrp &&
+-			  adapter->vlgrp->vlan_devices[adapter->mng_vlan_id])) {
++		vlan_group_get_device(adapter->vlgrp, adapter->mng_vlan_id))) {
++/*			  adapter->vlgrp->vlan_devices[adapter->mng_vlan_id])) {*/
+ 		e1000_vlan_rx_kill_vid(netdev, adapter->mng_vlan_id);
+ 	}
+ #endif
+@@ -3043,36 +3054,33 @@
+ 				return err;
+ 		}
+ 
+-		hdr_len = ((skb->h.raw - skb->data) + (skb->h.th->doff << 2));
++		hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
+ 		mss = skb_shinfo(skb)->gso_size;
+ 		if (skb->protocol == htons(ETH_P_IP)) {
+-			skb->nh.iph->tot_len = 0;
+-			skb->nh.iph->check = 0;
+-			skb->h.th->check =
+-				~csum_tcpudp_magic(skb->nh.iph->saddr,
+-						   skb->nh.iph->daddr,
+-						   0,
+-						   IPPROTO_TCP,
+-						   0);
++			struct iphdr *iph = ip_hdr(skb);
++                        iph->tot_len = 0;
++                        iph->check = 0;
++                        tcp_hdr(skb)->check = ~csum_tcpudp_magic(iph->saddr,
++                                                                 iph->daddr, 0,
++                                                                 IPPROTO_TCP,
++                                                                 0);
+ 			cmd_length = E1000_TXD_CMD_IP;
+-			ipcse = skb->h.raw - skb->data - 1;
++ 			ipcse = skb_transport_offset(skb) - 1;
+ #ifdef NETIF_F_TSO6
+ 		} else if (skb_shinfo(skb)->gso_type == SKB_GSO_TCPV6) {
+-			skb->nh.ipv6h->payload_len = 0;
+-			skb->h.th->check =
+-				~csum_ipv6_magic(&skb->nh.ipv6h->saddr,
+-						 &skb->nh.ipv6h->daddr,
+-						 0,
+-						 IPPROTO_TCP,
+-						 0);
+-			ipcse = 0;
++			ipv6_hdr(skb)->payload_len = 0;
++                        tcp_hdr(skb)->check =
++                                ~csum_ipv6_magic(&ipv6_hdr(skb)->saddr,
++                                                 &ipv6_hdr(skb)->daddr,
++                                                 0, IPPROTO_TCP, 0);
++                        ipcse = 0;
+ #endif
+ 		}
+-		ipcss = skb->nh.raw - skb->data;
+-		ipcso = (void *)&(skb->nh.iph->check) - (void *)skb->data;
+-		tucss = skb->h.raw - skb->data;
+-		tucso = (void *)&(skb->h.th->check) - (void *)skb->data;
+-		tucse = 0;
++                ipcss = skb_network_offset(skb);
++                ipcso = (void *)&(ip_hdr(skb)->check) - (void *)skb->data;
++                tucss = skb_transport_offset(skb);
++                tucso = (void *)&(tcp_hdr(skb)->check) - (void *)skb->data;
++                tucse = 0;
+ 
+ 		cmd_length |= (E1000_TXD_CMD_DEXT | E1000_TXD_CMD_TSE |
+ 			       E1000_TXD_CMD_TCP | (skb->len - (hdr_len)));
+@@ -3114,7 +3122,7 @@
+ 	uint8_t css;
+ 
+ 	if (likely(skb->ip_summed == CHECKSUM_PARTIAL)) {
+-		css = skb->h.raw - skb->data;
++		css = skb_transport_offset(skb);
+ 
+ 		i = tx_ring->next_to_use;
+ 		buffer_info = &tx_ring->buffer_info[i];
+@@ -3469,7 +3477,7 @@
+ 		/* TSO Workaround for 82571/2/3 Controllers -- if skb->data
+ 		* points to just header, pull a few bytes of payload from
+ 		* frags into skb->data */
+-		hdr_len = ((skb->h.raw - skb->data) + (skb->h.th->doff << 2));
++		hdr_len = skb_transport_offset(skb) + tcp_hdrlen(skb);
+ 		if (skb->data_len && (hdr_len == (skb->len - skb->data_len))) {
+ 			switch (adapter->hw.mac_type) {
+ 				unsigned int pull_size;
+@@ -3626,11 +3634,13 @@
+ }
+ 
+ static void
+-e1000_reset_task(struct net_device *netdev)
++e1000_reset_task(struct work_struct *work)
++//e1000_reset_task(struct net_device *netdev)
+ {
+-	struct e1000_adapter *adapter = netdev_priv(netdev);
+-
+-	e1000_reinit_locked(adapter);
++  //struct e1000_adapter *adapter = netdev_priv(netdev);
++  struct e1000_adapter *adapter =
++    container_of(work, struct e1000_adapter, reset_task);
++  e1000_reinit_locked(adapter);
+ }
+ 
+ /**
+@@ -3969,12 +3979,12 @@
+ 	}
+ 
+ #ifdef CONFIG_E1000_NAPI
+-	if (likely(netif_rx_schedule_prep(netdev))) {
++	if (likely(netif_rx_schedule_prep(netdev,&adapter->napi))) {
+ 		adapter->total_tx_bytes = 0;
+ 		adapter->total_tx_packets = 0;
+ 		adapter->total_rx_bytes = 0;
+ 		adapter->total_rx_packets = 0;
+-		__netif_rx_schedule(netdev);
++		__netif_rx_schedule(netdev,&adapter->napi);
+ 	} else
+ 		e1000_irq_enable(adapter);
+ #else
+@@ -4055,12 +4065,13 @@
+ 		E1000_WRITE_REG(hw, IMC, ~0);
+ 		E1000_WRITE_FLUSH(hw);
+ 	}
+-	if (likely(netif_rx_schedule_prep(netdev))) {
++	//if (likely(netif_rx_schedule_prep(netdev))) {
++	if (likely(netif_rx_schedule_prep(netdev, &adapter->napi))) {
+ 		adapter->total_tx_bytes = 0;
+ 		adapter->total_tx_packets = 0;
+ 		adapter->total_rx_bytes = 0;
+ 		adapter->total_rx_packets = 0;
+-		__netif_rx_schedule(netdev);
++		__netif_rx_schedule(netdev, &adapter->napi);
+ 	} else
+ 		/* this really should not happen! if it does it is basically a
+ 		 * bug, but not a hard error, so enable ints and continue */
+@@ -4130,47 +4141,42 @@
+  **/
+ 
+ static int
+-e1000_clean(struct net_device *poll_dev, int *budget)
++//e1000_clean(struct net_device *poll_dev, int *budget)
++e1000_clean(struct napi_struct *napi, int budget)
+ {
+-	struct e1000_adapter *adapter;
+-	int work_to_do = min(*budget, poll_dev->quota);
+-	int tx_cleaned = 0, work_done = 0;
++  struct e1000_adapter *adapter = container_of(napi, struct e1000_adapter, napi);
++  struct net_device *poll_dev = adapter->netdev;
++  int tx_cleaned = 0, work_done = 0;
++
++  /* Must NOT use netdev_priv macro here. */
++  adapter = poll_dev->priv;
++
++  /* e1000_clean is called per-cpu.  This lock protects
++   * tx_ring[0] from being cleaned by multiple cpus
++   * simultaneously.  A failure obtaining the lock means
++   * tx_ring[0] is currently being cleaned anyway. */
++  if (spin_trylock(&adapter->tx_queue_lock)) {
++    tx_cleaned = e1000_clean_tx_irq(adapter,
++				    &adapter->tx_ring[0]);
++    spin_unlock(&adapter->tx_queue_lock);
++  }
+ 
+-	/* Must NOT use netdev_priv macro here. */
+-	adapter = poll_dev->priv;
++  adapter->clean_rx(adapter, &adapter->rx_ring[0],
++		    &work_done, budget);
+ 
+-	/* Keep link state information with original netdev */
+-	if (!netif_carrier_ok(poll_dev))
+-		goto quit_polling;
+-
+-	/* e1000_clean is called per-cpu.  This lock protects
+-	 * tx_ring[0] from being cleaned by multiple cpus
+-	 * simultaneously.  A failure obtaining the lock means
+-	 * tx_ring[0] is currently being cleaned anyway. */
+-	if (spin_trylock(&adapter->tx_queue_lock)) {
+-		tx_cleaned = e1000_clean_tx_irq(adapter,
+-		                                &adapter->tx_ring[0]);
+-		spin_unlock(&adapter->tx_queue_lock);
+-	}
+-
+-	adapter->clean_rx(adapter, &adapter->rx_ring[0],
+-	                  &work_done, work_to_do);
+-
+-	*budget -= work_done;
+-	poll_dev->quota -= work_done;
+-
+-	/* If no Tx and not enough Rx work done, exit the polling mode */
+-	if ((tx_cleaned && (work_done < work_to_do)) ||
+-	   !netif_running(poll_dev)) {
+-quit_polling:
+-		if (likely(adapter->itr_setting & 3))
+-			e1000_set_itr(adapter);
+-		netif_rx_complete(poll_dev);
+-		e1000_irq_enable(adapter);
+-		return 0;
+-	}
++  if (tx_cleaned)
++    work_done = budget;
++
++  /* If budget not fully consumed, exit the polling mode */
++  if (work_done < budget) {
++    if (likely(adapter->itr_setting & 3))
++      e1000_set_itr(adapter);
++    netif_rx_complete(poll_dev, napi);
++    e1000_irq_enable(adapter);
++  }
++
++  return work_done;
+ 
+-	return 1;
+ }
+ 
+ #endif
+@@ -5176,10 +5182,7 @@
+ 	uint32_t vfta, index;
+ 
+ 	e1000_irq_disable(adapter);
+-
+-	if (adapter->vlgrp)
+-		adapter->vlgrp->vlan_devices[vid] = NULL;
+-
++	vlan_group_set_device(adapter->vlgrp, vid, NULL);
+ 	e1000_irq_enable(adapter);
+ 
+ 	if ((adapter->hw.mng_cookie.status &
+@@ -5205,7 +5208,7 @@
+ 	if (adapter->vlgrp) {
+ 		uint16_t vid;
+ 		for (vid = 0; vid < VLAN_GROUP_ARRAY_LEN; vid++) {
+-			if (!adapter->vlgrp->vlan_devices[vid])
++		 if (!vlan_group_get_device(adapter->vlgrp, vid))	
+ 				continue;
+ 			e1000_vlan_rx_add_vid(adapter->netdev, vid);
+ 		}
+Index: click-git-20080715-idd/drivers/e1000-7.x/src/kcompat.h
+===================================================================
+--- click-git-20080715-idd.orig/drivers/e1000-7.x/src/kcompat.h	2008-10-10 17:29:16.753747691 +0100
++++ click-git-20080715-idd/drivers/e1000-7.x/src/kcompat.h	2008-10-10 17:29:19.000000000 +0100
+@@ -1099,6 +1099,9 @@
+ 
+ #endif /* < 2.6.19 */
+ /*****************************************************************************/
++#if ( LINUX_VERSION_CODE > KERNEL_VERSION(2,6,22) )
++#undef ETHTOOL_GPERMADDR
++#endif /* > 2.6.22 */
+ 
+ #endif /* _KCOMPAT_H_ */
+ 
+Index: click-git-20080715-idd/drivers/e1000-7.x/src/Makefile
+===================================================================
+--- click-git-20080715-idd.orig/drivers/e1000-7.x/src/Makefile	2008-10-10 17:29:16.764889554 +0100
++++ click-git-20080715-idd/drivers/e1000-7.x/src/Makefile	2008-10-10 17:29:19.000000000 +0100
+@@ -42,7 +42,8 @@
+ 
+ # Kernel Search Path
+ # All the places we look for kernel source
+-KSP :=  /lib/modules/$(BUILD_KERNEL)/build \
++KSP :=  $(KDIR) \
++		/lib/modules/$(BUILD_KERNEL)/build \
+         /lib/modules/$(BUILD_KERNEL)/source \
+         /usr/src/linux-$(BUILD_KERNEL) \
+         /usr/src/linux-$($(BUILD_KERNEL) | sed 's/-.*//') \
+@@ -83,7 +84,7 @@
+     x:=$(shell mkdir -p include/linux)
+     x:=$(shell cp /boot/vmlinuz.version.h include/linux/version.h)
+     x:=$(shell cp /boot/vmlinuz.autoconf.h include/linux/autoconf.h)
+-    CFLAGS += -I./include
++    EXTRA_CFLAGS += -I./include
+   else
+     ifneq (,$(wildcard $(KOBJ)/include/linux/utsrelease.h))
+       VERSION_FILE := $(KOBJ)/include/linux/utsrelease.h
+@@ -126,29 +127,29 @@
+ # some additional features are only built on Intel platforms
+ ARCH := $(shell uname -m | sed 's/i.86/i386/')
+ ifeq ($(ARCH),alpha)
+-  CFLAGS += -ffixed-8 -mno-fp-regs
++  EXTRA_CFLAGS += -ffixed-8 -mno-fp-regs
+ endif
+ ifeq ($(ARCH),x86_64)
+-  CFLAGS += -mcmodel=kernel -mno-red-zone
++  EXTRA_CFLAGS += -mcmodel=kernel -mno-red-zone
+ endif
+ ifeq ($(ARCH),ppc)
+-  CFLAGS += -msoft-float
++  EXTRA_CFLAGS += -msoft-float
+ endif
+ ifeq ($(ARCH),ppc64)
+-  CFLAGS += -m64 -msoft-float
++  EXTRA_CFLAGS += -m64 -msoft-float
+   LDFLAGS += -melf64ppc
+ endif
+ 
+ # standard flags for module builds
+-CFLAGS += -DLINUX -D__KERNEL__ -DMODULE -O2 -pipe -Wall
+-CFLAGS += -I$(KSRC)/include -I.
+-CFLAGS += $(shell [ -f $(KSRC)/include/linux/modversions.h ] && \
++EXTRA_CFLAGS += -DLINUX -D__KERNEL__ -DMODULE -O2 -pipe -Wall
++EXTRA_CFLAGS += -I$(KSRC)/include -I.
++EXTRA_CFLAGS += $(shell [ -f $(KSRC)/include/linux/modversions.h ] && \
+             echo "-DMODVERSIONS -DEXPORT_SYMTAB \
+                   -include $(KSRC)/include/linux/modversions.h")
+ 
+-CFLAGS += -DCONFIG_E1000_NAPI $(CFLAGS_EXTRA)
++EXTRA_CFLAGS += -DCONFIG_E1000_NAPI $(CFLAGS_EXTRA)
+ #ifeq (,$(shell echo $(CFLAGS_EXTRA) | grep NAPI))
+-#CFLAGS += -DE1000_NO_NAPI
++#EXTRA_CFLAGS += -DE1000_NO_NAPI
+ #CFLAGS_EXTRA += -DE1000_NO_NAPI
+ #endif
+ 
+@@ -156,7 +157,7 @@
+ ifneq (,$(wildcard $(RHC)))
+   # 7.3 typo in rhconfig.h
+   ifneq (,$(shell $(CC) $(CFLAGS) -E -dM $(RHC) | grep __module__bigmem))
+-	CFLAGS += -D__module_bigmem
++	EXTRA_CFLAGS += -D__module_bigmem
+   endif
+ endif
+ 
+@@ -196,7 +197,7 @@
+ endif
+ 
+ ifeq ($(SMP),1)
+-  CFLAGS += -D__SMP__
++  EXTRA_CFLAGS += -D__SMP__
+ endif
+ 
+ ###########################################################################
+@@ -237,12 +238,12 @@
+ 
+ # Get rid of compile warnings in kernel header files from SuSE
+ ifneq (,$(wildcard /etc/SuSE-release))
+-  CFLAGS += -Wno-sign-compare -fno-strict-aliasing
++  EXTRA_CFLAGS += -Wno-sign-compare -fno-strict-aliasing
+ endif
+ 
+ # Get rid of compile warnings in kernel header files from fedora
+ ifneq (,$(wildcard /etc/fedora-release))
+-  CFLAGS += -fno-strict-aliasing
++  EXTRA_CFLAGS += -fno-strict-aliasing
+ endif
+ 
+ .SILENT: $(TARGET)
+Index: click-git-20080715-idd/drivers/e1000-7.x/src/e1000.h
+===================================================================
+--- click-git-20080715-idd.orig/drivers/e1000-7.x/src/e1000.h	2008-10-10 17:29:16.788132664 +0100
++++ click-git-20080715-idd/drivers/e1000-7.x/src/e1000.h	2008-10-10 17:30:31.000000000 +0100
+@@ -32,6 +32,8 @@
+ #ifndef _E1000_H_
+ #define _E1000_H_
+ 
++#undef CONFIG_E1000_NAPI
++
+ #include <linux/stddef.h>
+ #include <linux/module.h>
+ #include <linux/types.h>
+@@ -321,6 +323,7 @@
+ 				int cleaned_count);
+ 	struct e1000_rx_ring *rx_ring;      /* One per active queue */
+ #ifdef CONFIG_E1000_NAPI
++        struct napi_struct napi;
+ 	struct net_device *polling_netdev;  /* One per active queue */
+ #endif
+ 	int num_tx_queues;

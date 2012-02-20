@@ -1,0 +1,49 @@
+--- linux-2.6.24.orig/include/linux/netdevice.h	2009-04-30 16:43:32.000000000 +0100
++++ linux-2.6.24/include/linux/netdevice.h	2009-04-30 11:42:47.000000000 +0100
+@@ -723,7 +723,9 @@
+         * is on.
+         */
+        int                     polling;
++       int                     queue_count;
+        int                     (*poll_on)(struct net_device *);
++       int                     (*click_mac)(struct net_device *, int *queue, u8 *addr);
+        int                     (*poll_off)(struct net_device *);
+        /*
+         * rx_poll returns to caller a linked list of sk_buff objects received
+@@ -731,22 +733,22 @@
+         * packets wanted. on return, the want argument specifies the number
+         * of packets actually returned.
+         */
+-       struct sk_buff *        (*rx_poll)(struct net_device*, int *want);
++       struct sk_buff *        (*rx_poll)(struct net_device*, int *queue, int *want);
+        /* refill rx dma ring using the given sk_buff list. returns 0 if
+         * successful, or if there are more entries need to be cleaned,
+         * returns the number of dirty entries. the ptr to the sk_buff list is
+         * updated by the driver to point to any unused skbs.
+         */
+-       int                     (*rx_refill)(struct net_device*, struct sk_buff**);
++       int                     (*rx_refill)(struct net_device*, int *queue, struct sk_buff**);
+        /*
+         * place sk_buff on the transmit ring. returns 0 if successful, 1
+         * otherwise
+         */
+-       int                     (*tx_queue)(struct net_device *, struct sk_buff*);
++       int                     (*tx_pqueue)(struct net_device *, int *queue, struct sk_buff*);
+        /*
+         * clean tx dma ring. returns the list of skb objects cleaned
+         */
+-       struct sk_buff*         (*tx_clean)(struct net_device *);
++       struct sk_buff*         (*tx_clean)(struct net_device *, int *queue);
+        /*
+         * start transmission. returns 0 if successful, 1 otherwise
+         */
+@@ -755,7 +757,8 @@
+         * tell device the end of a batch of packets
+         */
+        int                     (*tx_eob)(struct net_device *);
+-
++       int (*lock_queue)(struct net_device*, int *queue, int cpu_id);
++       int (*unlock_queue)(struct net_device*, int *queue, int cpu_id);
+ 	/* class/net/name entry */
+ 	struct device		dev;
+ 	/* space for optional statistics and wireless sysfs groups */

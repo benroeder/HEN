@@ -1,0 +1,10 @@
+<node type="serviceprocessor" id="serviceprocessor1" netbootable="no" infrastructure="yes" physicallocation="rack2">
+
+	<peripheral type="powerswitch" id="powerswitch3" remoteport="7" />
+
+	<interface type="infrastructure" ip="192.168.1.15" subnet="255.255.255.0" mac="00:09:3D:13:2B:79" />
+
+	<usermanagement username="BLANKED-OUT" password="BLANKED-OUT" />
+
+
+</node>

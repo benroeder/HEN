@@ -1,0 +1,11 @@
+<node type="sensor" id="thermo" netbootable="no" infrastructure="yes" dhcp="no" vendor="sensatronics" model="e4" physicallocation="backwall">
+
+
+	<interface type="infrastructure" ip="128.16.13.114" subnet="255.255.255.0" mac="00:25:C0:44:55:32" />
+
+
+	<attribute name="numports" value="4" />
+	<attribute name="snmpreadcommunity" value="public" />
+	<attribute name="snmpwritecommunity" value="private" />
+
+</node>

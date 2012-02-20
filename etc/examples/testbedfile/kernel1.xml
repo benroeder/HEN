@@ -1,0 +1,10 @@
+<filenode id="kernel1" type="kernel" path="/export/kernels/fhuici/kernel.linux.2.6.16.13.x86_64" owner="fhuici" architecture="x86_64" ostype="linux" version="2.6.16.13" mustclone="no">
+
+      <attribute name="kernelparameters" value="console=ttyS0" />
+      <attribute name="kernelconfigpath" value="/export/kernels/fhuici/kernel.linux.2.6.16.13.x86_64.config" />
+
+      <md5signature>aweiofawoefwaieofw</md5signature>
+      <description>My description</description>
+
+
+</filenode>

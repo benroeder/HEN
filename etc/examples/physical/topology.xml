@@ -1,0 +1,79 @@
+<topology type="physical">
+
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack1.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack2.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack3.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack4.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack5.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack6.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack7.xml" />
+        <infrastructure type="rack" file="/usr/local/hen_mote/etc/physical/rack8.xml" />
+
+        <infrastructure type="floorbox" file="/usr/local/hen_mote/etc/physical/floorbox1.xml" />
+
+	<node type="server" file="/usr/local/hen_mote/etc/physical/server3.xml" />
+	<node type="server" file="/usr/local/hen_mote/etc/physical/server2.xml" />
+	<node type="server" file="/usr/local/hen_mote/etc/physical/server1.xml" />
+	<node type="server" file="/usr/local/hen_mote/etc/physical/server4.xml" />
+	<node type="server" file="/usr/local/hen_mote/etc/physical/server5.xml" />
+
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer1.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer4.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer5.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer21.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer15.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer22.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer16.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer11.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer3.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer13.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer19.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer17.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer14.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer6.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer9.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer10.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer23.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer8.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer12.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer7.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer2.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer20.xml" />
+	<node type="computer" file="/usr/local/hen_mote/etc/physical/computer18.xml" />
+
+	<node type="serial" file="/usr/local/hen_mote/etc/physical/serial1.xml" />
+	<node type="serial" file="/usr/local/hen_mote/etc/physical/serial3.xml" />
+	<node type="serial" file="/usr/local/hen_mote/etc/physical/serial2.xml" />
+	<node type="serial" file="/usr/local/hen_mote/etc/physical/serial5.xml" />
+	<node type="serial" file="/usr/local/hen_mote/etc/physical/serial6.xml" />
+	<node type="serial" file="/usr/local/hen_mote/etc/physical/serial4.xml" />
+
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch5.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch3.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch2.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch7.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch9.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch6.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch10.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch1.xml" />
+	<node type="powerswitch" file="/usr/local/hen_mote/etc/physical/powerswitch4.xml" />
+
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch6.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch1.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch10.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch3.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch9.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch4.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch2.xml" />
+	<node type="switch" file="/usr/local/hen_mote/etc/physical/switch5.xml" />
+
+	<node type="router" file="/usr/local/hen_mote/etc/physical/router1.xml" />
+
+	<node type="serviceprocessor" file="/usr/local/hen_mote/etc/physical/serviceprocessor5.xml" />
+	<node type="serviceprocessor" file="/usr/local/hen_mote/etc/physical/serviceprocessor6.xml" />
+	<node type="serviceprocessor" file="/usr/local/hen_mote/etc/physical/serviceprocessor2.xml" />
+	<node type="serviceprocessor" file="/usr/local/hen_mote/etc/physical/serviceprocessor4.xml" />
+	<node type="serviceprocessor" file="/usr/local/hen_mote/etc/physical/serviceprocessor1.xml" />
+	<node type="serviceprocessor" file="/usr/local/hen_mote/etc/physical/serviceprocessor3.xml" />
+
+</topology>

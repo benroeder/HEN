@@ -1,0 +1,18 @@
+<infrastructure type="floorbox" id="floorbox1"  vendor="unknown" model="unknown"
+description="my floorbox" building="malet" floor="4th" room="4.15">
+
+      <attribute name="rackrow" value="1" />
+      <attribute name="rowposition" value="3" />
+      <attribute name="maxcurrent" value="13" />
+
+      <powerplug label="1" enabled="yes" maxcurrent="16" />
+      <powerplug label="2" enabled="yes" maxcurrent="16" />
+      <powerplug label="3" enabled="no" maxcurrent="16" />
+      <powerplug label="4" enabled="no" maxcurrent="16" />
+
+      <rj45port type="ethernet" label="433/3" description="mainnet" />
+      <rj45port type="ethernet" label="433/4" description="mainnet" />
+      <rj45port type="ethernet" label="433/5" description="unconnected" />      
+      <rj45port type="ethernet" label="433/6" description="unconnected" />
+
+</infrastructure>

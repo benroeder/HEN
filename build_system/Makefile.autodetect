@@ -1,0 +1,66 @@
+.DEFAULT : all
+#.SILENT :
+
+include include/basic_config.mk
+include include/filesystem_minimal_squeeze.mk
+include include/linux_basic.mk
+include include/info.mk
+
+TARGET_NAME=$(PWD)/build/autodetect.img
+TARGET=$(PWD)/build/autodetect/
+INSTALLPKG=python,vim-nox,iproute,net-tools,pciutils,module-init-tools,nfs-common,udev,python,openssh-server,bridge-utils,lshw,build-essential,less,python-pysnmp4,iputils-ping
+
+KVER=2.6.36.2
+KDIRBASE=linux-2.6.36.2
+KDIR=linux-2.6.36.2
+KSRC=http://www.kernel.org/pub/linux/kernel/v2.6/linux-2.6.36.2.tar.gz
+KARCHIVE=linux-2.6.36.2.tar.gz
+KPATCHES=
+
+TAROPTIONS=-zxf
+KCONFIG=config-2.6.36.2
+
+CONSOLEDEV=ttyS0
+
+configure-minimal-target:
+# set hostname
+	echo "autodetect" > $(TARGET)/etc/hostname
+# setup resolve.conf
+	sudo chmod 777 $(TARGET)/etc/resolv.conf
+	echo "search hen-net" > $(TARGET)/etc/resolv.conf
+	echo "nameserver 192.168.0.1" >> $(TARGET)/etc/resolv.conf
+#copy ssh keys
+	sudo mkdir -p $(TARGET)/root/.ssh	
+	sudo cp $(SSHKEY) $(TARGET)/root/.ssh/authorized_keys
+#local directories
+	sudo mkdir -p $(TARGET)/usr/local/hen
+	sudo mkdir -p $(TARGET)/var/hen/autodetectclientdaemon
+	sudo mkdir -p $(TARGET)/var/run/hen 
+	sudo mkdir -p $(TARGET)/var/log/hen/autodetectclientdaemon
+	sudo chmod 777 $(TARGET)/etc/fstab
+#	echo "server1:$(TARGET) / nfs noatime 1 1" >> $(TARGET)/etc/fstab
+#	echo "server1:/export/usr_local_hen /usr/local/hen nfs noatime	0 0" >> $(TARGET)/etc/fstab
+#	echo "server1:/export /export nfs noatime 1 1" >> $(TARGET)/etc/fstab
+#	echo "server1:/home/hen/u0/ /home/hen/u0/ nfs noatime 1 1" >> $(TARGET)/etc/fstab
+#	echo "tmpfs                   /var/run        tmpfs	rw  0 0" >> $(TARGET)/etc/fstab
+#	echo "tmpfs                   /var/log        tmpfs	rw  0 0" >> $(TARGET)/etc/fstab
+#	echo "tmpfs                   /var/lock       tmpfs	rw  0 0" >> $(TARGET)/etc/fstab
+	echo "tmpfs                   /tmp            tmpfs	rw  0 0 " >> $(TARGET)/etc/fstab
+
+# setting up rc.local
+	sudo bash -c "> $(TARGET)/etc/rc.local"
+	sudo chmod 777 $(TARGET)/etc/rc.local
+	echo "#!/bin/sh -e" > $(TARGET)/etc/rc.local
+	echo "export PYTHONPATH=/usr/local/hen/lib"  >> $(TARGET)/etc/rc.local
+	echo "python /usr/local/hen/bin/daemons/autodetectclientdaemon.py" >> $(TARGET)/etc/rc.local
+	#echo "mount -a ; sleep 5" >> $(TARGET)/etc/rc.local
+	echo "exit 0" >> $(TARGET)/etc/rc.local
+
+copy-hen-in:
+	sudo chmod 777 $(TARGET)/usr/local/hen
+	cd $(TARGET)/usr/local/ && svn co https://frostie.cs.ucl.ac.uk/repos/hen/hen_scripts/trunk/ hen/
+
+kernel : fetch-linux unpack-linux patch-linux compile-linux 
+
+autodetect: create-minimal-target configure-minimal-target kernel copy-hen-in create-minimal-initrd
+

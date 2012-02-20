@@ -1,0 +1,19 @@
+<node type="computer" id="computer1" netbootable="yes" infrastructure="no" vendor="" model="" >
+
+       <physicallocation rackname="rack5" rackstartunit="4" rackendunit="6" position="both" />
+
+<!--	<peripheral type="serial" id="serial5" remoteport="47" />
+	<peripheral type="powerswitch" id="powerswitch3" remoteport="18" />
+
+	<interface type="management" ip="192.168.0.3" subnet="255.255.255.0" mac="00:C0:4F:7E:01:80" switch="switch4" port="22" model="3c905B 100BaseTX [Cyclone]" speed="100" />
+
+	<interface type="experimental" ip="None" subnet="None" mac="00:01:02:87:84:46" switch="switch1" port="2" model="3c905C-TX/TX-M [Tornado]" speed="100" />
+	<interface type="experimental" ip="None" subnet="None" mac="00:01:02:87:84:4B" switch="switch1" port="3" model="3c905C-TX/TX-M [Tornado]" speed="100" />
+-->
+	<attribute name="motherboard" value="Dell Computer Corporation OptiPlex GX1 333L+" />
+	<attribute name="cputype" value="Pentium II (Deschutes)" />
+	<attribute name="cpuspeed" value="333000000" />
+	<attribute name="numbercpus" value="1" />
+	<attribute name="memory" value="268435456" />
+
+</node>

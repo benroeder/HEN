@@ -1,0 +1,14 @@
+<node type="server" id="server1" netbootable="no" infrastructure="yes" vendor="" model="" physicallocation="rack2">
+
+	<peripheral type="serial" id="serial1" remoteport="1" />
+
+	<interface type="infrastructure" ip="192.168.1.1" subnet="255.255.255.0" mac="00:26:54:0a:a4:13" />
+
+	<interface type="management" ip="192.168.0.1" subnet="255.255.255.0" mac="00:60:08:71:93:7b" />
+
+	<interface type="external" ip="128.16.10.12" subnet="255.255.240.0" mac="00:01:03:ce:19:5f" />
+
+	<attribute name="dnsinfrastructurealias" value="arkell" />
+	<attribute name="dnsmanagementalias" value="arkell" />
+
+</node>

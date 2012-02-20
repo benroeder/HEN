@@ -1,0 +1,567 @@
+Index: click-git-20080715-idd/config-linuxmodule.h.in
+===================================================================
+--- click-git-20080715-idd.orig/config-linuxmodule.h.in	2008-10-15 14:47:16.294689687 +0100
++++ click-git-20080715-idd/config-linuxmodule.h.in	2008-10-15 14:47:17.000000000 +0100
+@@ -31,6 +31,9 @@
+ /* Define if 'int64_t' is typedefed to 'long long' in linuxmodule. */
+ #undef HAVE_INT64_IS_LONG_LONG_LINUXMODULE
+ 
++/* Define if 'uintptr_t' is typedefed in linuxmodule */
++#undef HAVE_UINTPTR_T_LINUXMODULE
++
+ /* Define to enable assertion checking. Failed assertions will print a message
+    and optionally stop the router. */
+ #undef HAVE_KERNEL_ASSERT
+@@ -89,12 +92,13 @@
+ #endif
+ 
+ /* Include integer type definitions. */
+-#if !HAVE_LINUXMODULE_2_6
+-# include <linux/autoconf.h>
+-#endif
++#include <linux/autoconf.h>
+ #include <linux/types.h>
++#include <linux/version.h>
+ typedef ptrdiff_t intptr_t;
++#ifndef HAVE_UINTPTR_T_LINUXMODULE
+ typedef unsigned long uintptr_t; /* XXX? */
++#endif
+ 
+ /* Define HAVE_INT64_IS_LONG based on HAVE_INT64_IS_LONG_LINUXMODULE. */
+ #ifdef HAVE_INT64_IS_LONG_LINUXMODULE
+@@ -137,6 +141,11 @@
+ /* Fix incompatibilities between some Linux versions and Click/C++. */
+ #include <click/fixconfig.h>
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24))
++struct net_device *dev_get_by_name(const char *name);
++int dev_ioctl(unsigned int cmd, void __user *arg);
++#endif
++
+ #endif /* __cplusplus */
+ 
+ /* Define assert macro. */
+Index: click-git-20080715-idd/configure
+===================================================================
+--- click-git-20080715-idd.orig/configure	2008-10-15 14:47:16.304730527 +0100
++++ click-git-20080715-idd/configure	2008-10-15 14:47:17.000000000 +0100
+@@ -15886,6 +15886,7 @@
+ 	LINUX_CFLAGS="`sed -e s,-Iinclude,-I$linuxdir/include,g \
+ 	    -e 's,-W^ *,,g' \
+ 	    -e 's,-Wno-pointer-sign,,g' \
++	    -e s,-I$linuxdir/include/asm/mach-generic/,,g \
+ 	    -e s,-fno-unit-at-a-time,,g \
+ 	    -e s,-Wstrict-prototypes,,g \
+ 	    -e s,-Wdeclaration-after-statement,,g \
+@@ -15901,7 +15902,7 @@
+     SAVE_CXX="$CXX"
+     CXX="$KERNEL_CXX"
+     saveflags="$CPPFLAGS"
+-    CPPFLAGS="$saveflags -D__KERNEL__ -I$linuxdir/include $LINUX_CFLAGS"
++    CPPFLAGS="$saveflags -D__KERNEL__ -I$linuxdir/include -I$linuxdir/include/asm/mach-generic -I$linuxdir/include/asm/mach-default $LINUX_CFLAGS"
+ 
+ 
+     # CLICK_LINUXMODULE_PROLOGUE()
+@@ -16299,6 +16300,83 @@
+     fi
+ 
+ 
++    { echo "$as_me:$LINENO: checking whether typename uintptr_t is defined in the Linux kernel" >&5
++echo $ECHO_N "checking whether typename uintptr_t is defined in the Linux kernel... $ECHO_C" >&6; }
++if test "${ac_cv_uintptr_t_in_linuxmodule+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#if HAVE_LINUXMODULE_2_6
++# define KBUILD_STR(s)		#s
++# define KBUILD_BASENAME	KBUILD_STR(click)
++# define KBUILD_MODNAME		KBUILD_STR(click)
++#endif
++#define new xxx_new
++#define this xxx_this
++#define delete xxx_delete
++#define class xxx_class
++#define virtual xxx_virtual
++#define typename xxx_typename
++#define private xxx_private
++#define protected xxx_protected
++#define public xxx_public
++#define namespace xxx_namespace
++#include <linux/autoconf.h>
++#include <linux/types.h>
++void f1() {
++uintptr_t i;
++}
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (ac_try="$ac_compile"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_compile") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_cxx_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest.$ac_objext; then
++  ac_cv_uintptr_t_in_linuxmodule=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	ac_cv_uintptr_t_in_linuxmodule=no
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++fi
++{ echo "$as_me:$LINENO: result: $ac_cv_uintptr_t_in_linuxmodule" >&5
++echo "${ECHO_T}$ac_cv_uintptr_t_in_linuxmodule" >&6; }
++    if test $ac_cv_uintptr_t_in_linuxmodule = yes; then
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_UINTPTR_T_LINUXMODULE 1
++_ACEOF
++
++    fi
++
++
+     { echo "$as_me:$LINENO: checking whether struct sk_buff has a security member" >&5
+ echo $ECHO_N "checking whether struct sk_buff has a security member... $ECHO_C" >&6; }
+ if test "${ac_cv_linuxmodule_skbuff_security+set}" = set; then
+Index: click-git-20080715-idd/configure.in
+===================================================================
+--- click-git-20080715-idd.orig/configure.in	2008-10-15 14:47:16.314831992 +0100
++++ click-git-20080715-idd/configure.in	2008-10-15 14:47:17.000000000 +0100
+@@ -902,6 +902,7 @@
+ 	LINUX_CFLAGS="`sed -e s,-Iinclude,-I$linuxdir/include,g \
+ 	    -e 's,-W[^ ]*,,g' \
+ 	    -e 's,-Wno-pointer-sign,,g' \
++	    -e s,-I$linuxdir/include/asm/mach-generic/,,g \
+ 	    -e s,-fno-unit-at-a-time,,g \
+ 	    -e s,-Wstrict-prototypes,,g \
+ 	    -e s,-Wdeclaration-after-statement,,g \
+@@ -916,7 +917,7 @@
+     SAVE_CXX="$CXX"
+     CXX="$KERNEL_CXX"
+     saveflags="$CPPFLAGS"
+-    CPPFLAGS="$saveflags -D__KERNEL__ -I$linuxdir/include $LINUX_CFLAGS"
++    CPPFLAGS="$saveflags -D__KERNEL__ -I$linuxdir/include -I$linuxdir/include/asm/mach-generic -I$linuxdir/include/asm/mach-default $LINUX_CFLAGS"
+ 
+ 
+     # CLICK_LINUXMODULE_PROLOGUE()
+@@ -993,6 +994,17 @@
+     fi
+ 
+ 
++    AC_CACHE_CHECK([whether typename uintptr_t is defined in the Linux kernel],
++	ac_cv_uintptr_t_in_linuxmodule, [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([CLICK_LINUXMODULE_PROLOGUE()[
++#include <linux/types.h>
++void f1() {
++uintptr_t i;
++}]], [[]])], ac_cv_uintptr_t_in_linuxmodule=yes, ac_cv_uintptr_t_in_linuxmodule=no)])
++    if test $ac_cv_uintptr_t_in_linuxmodule = yes; then
++	AC_DEFINE([HAVE_UINTPTR_T_LINUXMODULE], [1], [Define if 'uintptr_t' is typedefed in linuxmodule.])
++    fi
++
++
+     AC_CACHE_CHECK([whether struct sk_buff has a security member], [ac_cv_linuxmodule_skbuff_security],
+ 	[AC_LANG_C
+ 	AC_COMPILE_IFELSE([AC_LANG_PROGRAM([CLICK_LINUXMODULE_PROLOGUE()[
+Index: click-git-20080715-idd/elements/linuxmodule/anydevice.cc
+===================================================================
+--- click-git-20080715-idd.orig/elements/linuxmodule/anydevice.cc	2008-10-15 14:47:16.325899825 +0100
++++ click-git-20080715-idd/elements/linuxmodule/anydevice.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -298,7 +298,12 @@
+ 	return 0;
+     read_lock(&dev_base_lock);
+     net_device *dev;
++   
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    for_each_netdev(&init_net, dev)
++#else
+     for (dev = dev_base; dev; dev = dev->next)
++#endif
+ 	if ((dev->type == ARPHRD_ETHER || dev->type == ARPHRD_80211)
+ 	    && memcmp(en, dev->dev_addr, 6) == 0) {
+ 	    dev_hold(dev);	// dev_get_by_name does dev_hold; so
+Index: click-git-20080715-idd/elements/linuxmodule/fromdevice.cc
+===================================================================
+--- click-git-20080715-idd.orig/elements/linuxmodule/fromdevice.cc	2008-10-15 14:47:16.336974083 +0100
++++ click-git-20080715-idd/elements/linuxmodule/fromdevice.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -255,7 +255,11 @@
+ 	assert(skb_shared(skb) == 0); /* else skb = skb_clone(skb, GFP_ATOMIC); */
+ 
+ 	/* Retrieve the MAC header. */
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++	skb_push(skb, skb->data - skb_mac_header(skb));
++#else
+ 	skb_push(skb, skb->data - skb->mac.raw);
++#endif
+ 
+ 	Packet *p = Packet::make(skb);
+ 	_queue[_tail] = p; /* hand it to run_task */
+Index: click-git-20080715-idd/elements/linuxmodule/todevice.cc
+===================================================================
+--- click-git-20080715-idd.orig/elements/linuxmodule/todevice.cc	2008-10-15 14:47:16.348095836 +0100
++++ click-git-20080715-idd/elements/linuxmodule/todevice.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -303,7 +303,7 @@
+     // to call qdisc_restart() ourselves, outside of net_bh().
+     if (is_polling && !busy && _dev->qdisc->q.qlen) {
+ 	_dev->tx_eob(_dev);
+-	netif_wake_queue(_dev);
++	//netif_wake_queue(_dev);
+     }
+ #endif
+ 
+Index: click-git-20080715-idd/elements/linuxmodule/tohost.cc
+===================================================================
+--- click-git-20080715-idd.orig/elements/linuxmodule/tohost.cc	2008-10-15 14:47:16.362217548 +0100
++++ click-git-20080715-idd/elements/linuxmodule/tohost.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -151,7 +151,11 @@
+     skb->pkt_type &= PACKET_TYPE_MASK;
+ 
+     // MAC header is the data pointer
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    skb_set_mac_header(skb, 0);
++#else
+     skb->mac.raw = skb->data;
++#endif
+     
+     // set skb->protocol
+     if (_type == ARPHRD_NONE)
+Index: click-git-20080715-idd/include/click/packet.hh
+===================================================================
+--- click-git-20080715-idd.orig/include/click/packet.hh	2008-10-15 14:47:16.376339260 +0100
++++ click-git-20080715-idd/include/click/packet.hh	2008-10-15 14:47:17.000000000 +0100
+@@ -571,7 +571,11 @@
+ Packet::end_data() const
+ {
+ #if CLICK_LINUXMODULE
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    return skb_tail_pointer(skb());
++# else
+     return skb()->tail;
++# endif
+ #else
+     return _tail;
+ #endif
+@@ -640,7 +644,11 @@
+ Packet::end_buffer() const
+ {
+ #if CLICK_LINUXMODULE
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    return skb_end_pointer(skb());
++# else
+     return skb()->end;
++# endif
+ #else
+     return _end;
+ #endif
+@@ -653,7 +661,11 @@
+ Packet::buffer_length() const
+ {
+ #if CLICK_LINUXMODULE
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    return skb_end_pointer(skb()) - skb()->head;
++# else
+     return skb()->end - skb()->head;
++# endif
+ #else
+     return _end - _head;
+ #endif
+@@ -725,7 +737,11 @@
+ Packet::mac_header() const
+ {
+ #if CLICK_LINUXMODULE
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    return skb_mac_header(skb());
++# else
+     return skb()->mac.raw;
++#endif
+ #else
+     return _mac;
+ #endif
+@@ -738,7 +754,11 @@
+ Packet::network_header() const
+ {
+ #if CLICK_LINUXMODULE
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    return skb_network_header(skb());
++#else
+     return skb()->nh.raw;
++#endif
+ #else
+     return _nh;
+ #endif
+@@ -751,7 +771,11 @@
+ Packet::transport_header() const
+ {
+ #if CLICK_LINUXMODULE
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    return skb_transport_header(skb());
++# else
+     return skb()->h.raw;
++# endif
+ #else
+     return _h;
+ #endif
+@@ -873,8 +897,12 @@
+ # if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 13)
+     memcpy(&skb()->stamp, &timestamp, 8);
+ # else
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
++    skb()->tstamp = timeval_to_ktime(timestamp.timeval());
++#else
+     skb_set_timestamp(skb(), &timestamp.timeval());
+-# endif
++#endif   
++#endif
+ #else
+     _timestamp = timestamp;
+ #endif
+@@ -1427,7 +1455,13 @@
+ Packet::set_mac_header(const unsigned char *p)
+ {
+ #if CLICK_LINUXMODULE	/* Linux kernel module */
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    const int offset = p - skb()->data;
++    assert(offset >= 0);
++    skb_set_mac_header(skb(), offset);
++# else
+     skb()->mac.raw = const_cast<unsigned char *>(p);
++# endif
+ #else				/* User-space and BSD kernel module */
+     _mac = const_cast<unsigned char *>(p);
+ #endif
+@@ -1441,8 +1475,15 @@
+ Packet::set_mac_header(const unsigned char *p, uint32_t len)
+ {
+ #if CLICK_LINUXMODULE	/* Linux kernel module */
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    const int offset = p - skb()->data;
++    assert(offset >= 0);
++    skb_set_mac_header(skb(), offset);
++    skb_set_network_header(skb(), offset + len);
++# else
+     skb()->mac.raw = const_cast<unsigned char *>(p);
+     skb()->nh.raw = const_cast<unsigned char *>(p) + len;
++# endif
+ #else				/* User-space and BSD kernel module */
+     _mac = const_cast<unsigned char *>(p);
+     _nh = const_cast<unsigned char *>(p) + len;
+@@ -1501,8 +1542,15 @@
+ Packet::set_network_header(const unsigned char *p, uint32_t len)
+ {
+ #if CLICK_LINUXMODULE	/* Linux kernel module */
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    const int offset = p - skb()->data;
++    assert(offset >= 0);
++    skb_set_network_header(skb(), offset);
++    skb_set_transport_header(skb(), offset + len);
++# else
+     skb()->nh.raw = const_cast<unsigned char *>(p);
+     skb()->h.raw = const_cast<unsigned char *>(p) + len;
++# endif
+ #else				/* User-space and BSD kernel module */
+     _nh = const_cast<unsigned char *>(p);
+     _h = const_cast<unsigned char *>(p) + len;
+@@ -1519,7 +1567,11 @@
+ Packet::set_network_header_length(uint32_t len)
+ {
+ #if CLICK_LINUXMODULE	/* Linux kernel module */
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    skb()->transport_header = skb()->network_header + len;
++# else
+     skb()->h.raw = skb()->nh.raw + len;
++# endif
+ #else				/* User-space and BSD kernel module */
+     _h = _nh + len;
+ #endif
+@@ -1710,10 +1762,16 @@
+     _h += (_h ? shift : 0);
+ #else
+     struct sk_buff *mskb = skb();
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    mskb->mac_header += (mskb->mac_header ? shift : 0);
++    mskb->network_header += (mskb->network_header ? shift : 0);
++    mskb->transport_header += (mskb->transport_header ? shift : 0);
++#else
+     mskb->mac.raw += (mskb->mac.raw ? shift : 0);
+     mskb->nh.raw += (mskb->nh.raw ? shift : 0);
+     mskb->h.raw += (mskb->h.raw ? shift : 0);
+ #endif
++#endif
+ }
+ 
+ /** @cond never */
+Index: click-git-20080715-idd/lib/glue.cc
+===================================================================
+--- click-git-20080715-idd.orig/lib/glue.cc	2008-10-15 14:47:16.387400388 +0100
++++ click-git-20080715-idd/lib/glue.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -35,6 +35,10 @@
+ #  include <click/cxxprotect.h>
+ CLICK_CXX_PROTECT
+ #  include <linux/vmalloc.h>
++# if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24))
++#  include <linux/netdevice.h>
++#  include <net/net_namespace.h>
++# endif
+ CLICK_CXX_UNPROTECT
+ #  include <click/cxxunprotect.h>
+ # endif
+@@ -762,10 +766,23 @@
+ return __res;
+ }
+ #endif
+-#endif
+ 
+ }
+ 
++#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24))
++struct net_device *dev_get_by_name(const char *name)
++{
++	return dev_get_by_name(&init_net, name);
++}
++
++int dev_ioctl(unsigned int cmd, void __user *arg)
++{
++	return dev_ioctl(&init_net, cmd, arg);
++}
++#endif
++
++#endif
++
+ #endif /* !__KERNEL__ */
+ 
+ #if CLICK_LINUXMODULE && !defined(__HAVE_ARCH_STRLEN) && !defined(HAVE_LINUX_STRLEN_EXPOSED)
+Index: click-git-20080715-idd/lib/ino.cc
+===================================================================
+--- click-git-20080715-idd.orig/lib/ino.cc	2008-10-15 14:47:16.397541804 +0100
++++ click-git-20080715-idd/lib/ino.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -352,6 +352,8 @@
+ #define RD_UOFF		0x20000
+ #define RD_NOFF		0x30000
+ #define RD_XOFF		0x40000
++#define DT_REG              8
++#define DT_DIR		    4
+ #define FILLDIR(a, b, c, d, e, f)  do { if (!filldir(a, b, c, d, e, f)) return 0; } while (0)
+     
+     int elementno = INO_ELEMENTNO(ino);
+Index: click-git-20080715-idd/lib/packet.cc
+===================================================================
+--- click-git-20080715-idd.orig/lib/packet.cc	2008-10-15 14:47:16.409683565 +0100
++++ click-git-20080715-idd/lib/packet.cc	2008-10-15 14:47:17.000000000 +0100
+@@ -447,8 +447,16 @@
+   
+   nskb->head = new_data;
+   nskb->data = new_data + old_headroom + extra_headroom;
++# if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++  skb_set_tail_pointer(nskb, old_length);
++# else
+   nskb->tail = nskb->data + old_length;
++# endif
++# ifdef NET_SKBUFF_DATA_USES_OFFSET
++  nskb->end = size;
++# else
+   nskb->end = new_data + size;
++#endif
+   nskb->len = old_length;
+ # if LINUX_VERSION_CODE < KERNEL_VERSION(2, 4, 0)
+   nskb->is_clone = 0;
+Index: click-git-20080715-idd/linuxmodule/Makefile.in
+===================================================================
+--- click-git-20080715-idd.orig/linuxmodule/Makefile.in	2008-10-15 14:47:16.420772631 +0100
++++ click-git-20080715-idd/linuxmodule/Makefile.in	2008-10-15 14:47:17.000000000 +0100
+@@ -84,9 +84,11 @@
+ CLICKCC = @KERNEL_CC@
+ CLICKCXX = @KERNEL_CXX@
+ 
+-LINUXCFLAGS = $(shell echo "$(CPPFLAGS) $(CFLAGS) $(CFLAGS_MODULE)" | sed \
++LINUXCFLAGS = $(shell echo "$(CPPFLAGS) $(CFLAGS) $(CFLAGS_MODULE)" \
++	"$(KBUILD_CPPFLAGS) $(KBUILD_CFLAGS) " | sed \
+ 	-e s,-fno-unit-at-a-time,, -e s,-Wstrict-prototypes,, \
+ 	-e s,-Wdeclaration-after-statement,, \
++	-e s,-Werror-implicit-function-declaration,, \
+ 	-e s,-Wno-pointer-sign,, -e s,-fno-common,,)
+ CLICKCPPFLAGS = @CPPFLAGS@ -DCLICK_LINUXMODULE
+ CLICKCFLAGS = @CFLAGS_NDEBUG@
+@@ -95,7 +97,8 @@
+ 
+ CLICKDEFS = @DEFS@ 
+ CLICKINCLUDES = -I$(top_builddir)/include -I$(top_srcdir)/include \
+-	-I$(srcdir) -I$(top_srcdir) -I$(linuxdir)/include
++	-I$(srcdir) -I$(top_srcdir) -I$(linuxdir)/include \
++	-I$(linuxdir)/include/asm/mach-default
+ 
+ CXXCOMPILE = $(CLICKCXX) $(LINUXCFLAGS) $(CLICKCPPFLAGS) $(CLICKCFLAGS) \
+ 	$(CLICKCXXFLAGS) $(CLICKDEFS) $(CLICKINCLUDES) $(CLICKDEPCFLAGS)
+Index: click-git-20080715-idd/linuxmodule/proclikefs.c
+===================================================================
+--- click-git-20080715-idd.orig/linuxmodule/proclikefs.c	2008-10-15 14:47:16.430865993 +0100
++++ click-git-20080715-idd/linuxmodule/proclikefs.c	2008-10-15 14:47:17.000000000 +0100
+@@ -357,7 +357,7 @@
+ 	fo->unlocked_ioctl = (void *) return_EIO;
+ 	fo->compat_ioctl = (void *) return_EIO;
+ 	fo->aio_fsync = (void *) return_EIO;
+-	fo->sendfile = (void *) return_EIO;
++/*	fo->sendfile = (void *) return_EIO;*/
+ 	fo->check_flags = (void *) return_EIO;
+ 	fo->flock = (void *) return_EIO;
+ #endif
+Index: click-git-20080715-idd/linuxmodule/skbmgr.cc
+===================================================================
+--- click-git-20080715-idd.orig/linuxmodule/skbmgr.cc	2008-10-15 14:47:16.445008100 +0100
++++ click-git-20080715-idd/linuxmodule/skbmgr.cc	2008-10-15 14:47:18.000000000 +0100
+@@ -279,10 +279,17 @@
+ {
+   while (skbs) {
+     struct sk_buff *skb = skbs;
++    unsigned char *end_pointer;
+     skbs = skbs->next;
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24)
++    end_pointer = skb_end_pointer(skb);
++#else
++    end_pointer = skb->end;
++#endif
++
+     // where should sk_buff go?
+-    int bucket = size_to_lower_bucket(skb->end - skb->head);
++    int bucket = size_to_lower_bucket(end_pointer - skb->head);
+ 
+     // try to put in that bucket
+     if (bucket >= 0) {
+@@ -339,6 +346,7 @@
+   }
+ 
+   size = size_to_higher_bucket_size(headroom + size);
++  lock();
+   while (got < want) {
+     struct sk_buff *skb = alloc_skb(size, GFP_ATOMIC);
+ #if DEBUG_SKBMGR
+@@ -353,6 +361,7 @@
+     prev = &skb->next;
+     got++;
+   }
++  unlock();
+ 
+   *prev = 0;
+   *store_got = got;

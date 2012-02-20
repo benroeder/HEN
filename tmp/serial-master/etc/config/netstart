@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# Warning - this script is automatically generated - do NOT edit
+#
+ifconfig lo 127.0.0.1
+route del -net 127.0.0.0 netmask 255.0.0.0 2> /dev/null
+route add -net 127.0.0.0 netmask 255.0.0.0 lo
+dhcpcd -p -a -h - eth0 &

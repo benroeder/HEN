@@ -1,0 +1,14 @@
+<node type="server" id="server2" netbootable="no" infrastructure="yes" vendor="" model="" physicallocation="rack2">
+
+	<peripheral type="serial" id="serial1" remoteport="2" />
+
+	<interface type="infrastructure" ip="192.168.1.2" subnet="255.255.255.0" mac="00:01:03:CE:19:3F" />
+
+	<interface type="management" ip="192.168.0.2" subnet="255.255.255.0" mac="00:11:D8:31:74:BA" />
+
+	<interface type="external" ip="128.16.12.203" subnet="255.255.240.0" mac="00:09:5B:1D:A5:6E" />
+
+	<attribute name="dnsinfrastructurealias" value="cockerel" />
+	<attribute name="dnsmanagementalias" value="cockerel" />
+
+</node>

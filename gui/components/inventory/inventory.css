@@ -1,0 +1,271 @@
+.inventory-computer 
+{
+  background-color:orange; 
+  font-size:x-small; 
+  font-family:courier
+} 
+
+.inventory-server 
+{
+  background-color:green; 
+  font-size:x-small; 
+  font-family:courier
+}
+
+.inventory-serial 
+{
+  background-color:pink; 
+  font-size:x-small; 
+  font-family:courier
+}
+
+.inventory-powerswitch 
+{
+  background-color:red; 
+  font-size:x-small; 
+  font-family:courier; 
+  cursor:default
+}
+
+.inventory-switch 
+{
+  background-color:yellow; 
+  font-size:x-small; 
+  font-family:courier
+}
+
+.inventory-router 
+{
+  background-color:lightblue; 
+  font-size:x-small; 
+  font-family:courier
+}
+	
+.inventory-empty 
+{
+  background-color:lightgrey; 
+  font-size:x-small
+}
+
+.inventory-nodetext 
+{
+  font-family:'trebuchet ms',helvetica,sans-serif; 
+  text-align:center; 
+  cursor:default; 
+  vertical-align: bottom; 
+  font-size:10px; 
+  font-weight:600
+}
+
+.inventory-nodeinfotext 
+{
+  font-family:courier; 
+  font-size:small
+}
+
+.inventory-leftunitlabel 
+{
+  font-family:'trebuchet ms'; 
+  text-align:right; 
+  cursor:default;
+}
+
+.inventory-rightunitlabel 
+{
+  font-family:'trebuchet ms'; 
+  text-align:left; 
+  cursor:default;
+}
+
+.inventory-racklabel 
+{
+  font-family:'trebuchet ms',helvetica,sans-serif; 
+  text-align:center; 
+  cursor:default; 
+  font-size:12px
+}
+
+.inventory-toggleviewbuttontext 
+{
+  font-family:courier; 
+  text-align:center; 
+  font-size:small; 
+  cursor:default
+}
+
+.inventory-verticalnodetext
+{
+  font-family:'trebuchet ms',helvetica,sans-serif; 
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.inventory-controlpaneldiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid #666666;
+  background-color: #ccc;
+  padding: 0px;
+}
+
+.inventory-controlpanelframingdiv
+{
+  font-family: verdana, sans-serif;
+  border: 1px solid #999999;
+  background-color: #ccc;
+  padding: 5px;
+}
+
+.inventory-simplebuttoninputform
+{
+   color:#000000;
+   font-family:'trebuchet ms',helvetica,sans-serif;
+	   font-size:10px;
+   width:90px;
+   height:20px;
+   background-color:white;
+   border: 1px solid #666666;
+}
+
+.inventory-simpletextareainputform
+{
+  background-color: white;
+  border: 1px solid #666666;
+  font-size:10px
+}
+
+.inventory-boldlabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.inventory-normallabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+}
+
+.inventory-linklabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+  text-decoration: underline;
+  color: blue;
+  cursor: pointer;
+}
+
+.inventory-simpledropdowninputform
+{
+  background-color: white;
+  border: 1px solid #666666;
+  font-size:10px;
+  width:130px;
+}
+
+.inventory-simpletextinputform 
+{
+  background-color: white; 
+  height:15px; 
+  width:120px; 
+  border: 1px solid #666666; 
+  font-size:10px
+}
+
+.inventory-table
+{
+  border-width: 1px;
+  border-spacing: 0px;
+  border-style: none;
+  border-color: gray;
+  border-collapse: collapse;
+  background-color: white;
+}
+
+.inventory-row
+{
+  border-width: 0px;
+  padding: 0px;
+  border-style: inset;
+  border-color: gray;
+}
+
+.inventory-cell
+{
+  border-width: 1px;
+  padding: 0px;
+  border-style: inset;
+  border-color: gray;
+}
+
+.inventory-layouttable
+{
+  border-width: 0px;
+  background-color: #ccc;
+}
+
+.inventory-layoutcell
+{
+  border-width: 0px;
+  background-color: #ccc;
+}
+
+.inventory-tabletitlelabel
+{
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size: 14px;
+  font-weight: bolder
+}
+
+.inventory-legendpaneldiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid #666666;
+  background-color: #ccc;
+  padding: 0px;
+}
+
+.inventory-legendrectangle
+{
+  background-color: white;
+  font-family:'trebuchet ms',helvetica,sans-serif;
+  font-size:10px;
+  width:75px;
+  height:20px;
+  border: 1px solid #666666;
+}
+
+.inventory-clickdiv
+{
+  position: absolute;
+  font-family: verdana, sans-serif;
+  border: 0px;
+  background-color: white;
+  padding: 0px;
+}
+
+.inventory-floatinginput
+{
+  position:absolute; 
+  z-index:2;
+  padding:5px;
+  border:#000000 1px solid;
+  background-color:#ccc;
+}
+
+.inventory-longtextinputform
+{
+  background-color: white;
+  height:15px; width:140px;
+  border: 1px solid #666666;
+  font-size:10px
+ }

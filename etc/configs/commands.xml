@@ -1,0 +1,79 @@
+<testbedcommands>
+
+   <!-- Main Mode Commands (control) -->
+   <command name="exit" type="local" mode="main" requiredparameters="0" optionalparameters="0" expand="no">
+   </command>
+   <command name="help" type="local" mode="main" requiredparameters="0" optionalparameters="0" expand="no">
+   </command>
+   <command name="power" type="control" mode="main" requiredparameters="2" optionalparameters="n" expand="yes">
+      <parameter number="1" regexp="on|off|restart|status" regexpalias="on|off|restart|status"/>
+      <parameter number="2" regexp=".*" regexpalias="node id" />
+      <parameter number="n" regexp=".*" regexpalias="node id" />
+   </command>
+   <command name="netboot" type="control" mode="main" requiredparameters="4" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="node id" />
+      <parameter number="2" regexp=".*" regexpalias="loader"/>
+      <parameter number="3" regexp=".*" regexpalias="filesystem"/>
+      <parameter number="4" regexp=".*" regexpalias="kernel"/>
+   </command>
+   <command name="console"  type="control" mode="main" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="node id"/>
+   </command>
+   <command name="acquire"  type="control" mode="main" requiredparameters="1" optionalparameters="0" expand="yes">
+      <parameter number="1" regexp="[a-zA-Z0-9]*(,[a-zA-Z0-9])*" regexpalias="mac addr"/>
+   </command>
+   <command name="release"  type="control" mode="main" requiredparameters="1" optionalparameters="0" expand="yes">
+      <parameter number="1" regexp="[a-zA-Z0-9]*(,[a-zA-Z0-9])*" regexpalias="mac addr"/>
+   </command>
+   <command name="owner"  type="control" mode="main" requiredparameters="0" optionalparameters="n" expand="yes">
+      <parameter number="n" regexp=".*" regexpalias="node id"/>
+   </command>
+   <command name="inventory"  type="control" mode="main" requiredparameters="0" optionalparameters="n" expand="yes">
+      <parameter number="n" regexp=".*" regexpalias="node id"/>
+   </command>
+   <command name="node"  type="control" mode="main" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="node id"/>
+   </command>
+   <command name="vlan"  type="control" mode="main" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="vlan id"/>
+   </command>
+
+   <!-- Debug commands (control) -->
+   <command name="get_state"  type="control" mode="main" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="path"/>
+   </command>
+
+   <!-- Main Mode Commands (system) -->
+   <command name="dhcpserver" type="system" mode="main" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp="create|restart|start|stop" regexpalias="create|restart|start|stop"/>
+   </command>
+   <command name="dnsserver" type="system" mode="main" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp="create|restart|start|stop" regexpalias="create|restart|start|stop"/>
+   </command>
+
+   <!-- Vlan Mode Commands (control) -->
+   <command name="exit" type="local" mode="vlan" requiredparameters="0" optionalparameters="0" expand="no">
+   </command>
+   <command name="add" type="control" mode="vlan" requiredparameters="2" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="node id"/>
+      <parameter number="2" regexp=".*" regexpalias="interface id" />
+   </command>
+   <command name="remove" type="control" mode="vlan" requiredparameters="2" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="node id"/>
+      <parameter number="2" regexp=".*" regexpalias="interface id" />
+   </command>
+   <command name="delete" type="control" mode="vlan" requiredparameters="0" optionalparameters="0" expand="no">
+   </command>
+   <command name="show" type="control" mode="vlan" requiredparameters="0" optionalparameters="0" expand="no">
+   </command>
+   
+   <!-- Node Mode Commands (control) -->
+   <command name="cat" type="control" mode="node" requiredparameters="1" optionalparameters="0" expand="no">
+      <parameter number="1" regexp=".*" regexpalias="dir"/>
+   </command>
+   <command name="exit" type="local" mode="node" requiredparameters="0" optionalparameters="0" expand="no">
+   </command>
+
+
+
+</testbedcommands>

@@ -1,0 +1,1350 @@
+#!/usr/bin/env python
+##################################################################################################################
+# hm.py: hm controls all actions on the testbed
+#
+##################################################################################################################
+import sys, commands, re, os, logging, time, string, fileinput, stat
+#sys.path.append("/usr/local/hen/lib")
+
+from henmanager import HenManager
+from auxiliary.hen import findFirstNumberInString
+from hardware.device import Device
+
+username = os.environ['USER']
+
+STANDARD="standard"
+EXPERT="expert"
+mode = STANDARD
+try:
+    mode = os.environ['HENMODE']
+    if mode == EXPERT:
+        mode = EXPERT
+except:
+    pass
+
+###########################################################################################
+#   Functions
+###########################################################################################
+def commandsMenu(command="all"):
+    """\brief Prints detailed help information for the hm commands
+    """
+    print "Usage: hm command [options]\n"
+
+    if (mode == EXPERT and (command == "all" or command=="connectivity")):
+        print "connectivity: lists the objects connected to a device's interfaces"
+        print "\t[nodeid]"
+        print "--------------------------------------------------------------------------"        
+    
+    if (command == "all" or command=="console"):
+        print "console: access a node's console or view/change the baud rate"
+        print "\t[nodeid]"
+        print "\tget baud [nodeid]"
+        print "\tset baud [rate] [nodeid]"
+        print "--------------------------------------------------------------------------"
+
+    if (mode == EXPERT and (command == "all" or command=="delete")):
+        print "delete: deletes an element from the testbed"
+        print "\t[elementid]"
+        print "--------------------------------------------------------------------------"
+
+    if (mode == EXPERT and (command == "all" or command=="dhcpserver")):
+        print "dhcpserver: start, stop or restart the dhcp server or create its dhcpd.conf file"
+        print "\tstart"
+        print "\tstop"
+        print "\trestart"
+        print "\tcreate"
+        print "--------------------------------------------------------------------------"
+
+    if (mode == EXPERT and (command == "all" or command=="dnsserver")):
+        print "dnsserver: start, stop or restart the dns server or create its configuration files"
+        print "\tstart"
+        print "\tstop"
+        print "\trestart"
+        print "\tcreate"
+        print "--------------------------------------------------------------------------"        
+
+    if (mode == EXPERT and (command == "all" or command=="experiment")):
+        print "experiment: add or delete experiments from the testbed"
+        print "\tcreate [experimentid] [topologyfile]"
+        print "\tdelete [experimentid]"
+        print "--------------------------------------------------------------------------"
+
+    if (command == "all" or command=="inventory"):
+        print "inventory: prints characteristics of nodes"
+        print "\telement [element id]"
+        print "\telement lshw [element id]"
+        print "\ttype [element type]"
+        print "\tall"
+        print "\talltypes"
+        print "\tfree ip <management|infrastructure>"
+        print "--------------------------------------------------------------------------"        
+
+    if (command == "all" or command == "mote"):
+        print "mote: list, detect, log from and install applications on motes"
+        print "  list: list the attached motes"
+        print "\t[moteid|hostname]"
+        print "  detect: detect new, moved and missing motes"
+        print "\t[hostname]"
+        print "  install: install your mote application (platform = tinyos | tinyos1 | tinyos2 | contiki)"
+        print "\tplatform dir moteid1 [moteid2]..."
+        print "  log: start or stop mote logging "
+        print "\tstart directory nodeids (log files are saved in the form $(dir)/$(moteid).log)" 
+        print "\tstop moteid1 [moteid2]..."
+        print "  ps: just like ps on UNIX, but for motes!"
+        print "\t[moteid|controllerid]"
+        print "--------------------------------------------------------------------------"
+    
+    if (mode == EXPERT and (command == "all" or command == "monitor")):
+        print "monitor: commands to monitor the testbed's hardware\n"
+        print "  temperature: gets the temperature(s) on a piece of hardware."
+        print "\t [node1][node2]... or [range node1 node2]"
+        print "  current: gets the current(s) in amps on a piece of hardware."
+        print "\t [node1][node2]... or [range node1 node2]"
+        print "  voltage: gets the voltage(s) in Volts on a piece of hardware."
+        print "\t [node1][node2]... or [range node1 node2]"
+        print "  alarm: gets any alarms that have gone off in a piece of hardware."
+        print "\t [node1][node2]... or [range node1 node2]"
+        print "  fanspeed: gets all fan speeds in a piece of hardware."
+        print "\t [node1][node2]... or [range node1 node2]"                
+        print "  all: gets all sensor readings in a piece of hardware."
+        print "\t [node1][node2]... or [range node1 node2]"                
+        print "--------------------------------------------------------------------------"
+
+    if (mode == EXPERT and (command == "all" or command == "infrastructure")):
+        print "infrastructure: add components of infrastructure\n"
+        print "  rack: add a rack from the testbed"
+        print "\tcreate [vendor][model][description][building][floor][room][rackrow][rowposition][height][width][depth][rearrightslots][rearleftslots][numberunits]"
+        print "  floorbox: add a floor box from the testbed"        
+        print "\tcreate [vendor][model][description][building][floor][room][rackrow][rowposition][maxcurrent]"
+        print "\t       [plug1label][plug1enabled][plug1maxcurrent]"
+        print "\t       [plug2label][plug2enabled][plug2maxcurrent]"
+        print "\t       [plug3label][plug3enabled][plug3maxcurrent]"
+        print "\t       [plug4label][plug4enabled][plug4maxcurrent]"
+        print "\t       [rj45port1type][rj45port1label][rj45port1description]"
+        print "\t       [rj45port2type][rj45port2label][rj45port2description]"
+        print "\t       [rj45port3type][rj45port3label][rj45port3description]"
+        print "\t       [rj45port4type][rj45port4label][rj45port4description]"                
+        print "--------------------------------------------------------------------------"
+        
+    if (mode == EXPERT and (command == "all" or command == "node")):
+        print "node: add various node types from the testbed\n"
+        print "  server: add a server node from the testbed. Use none for non-applicable interfaces."
+        print "\tcreate [location][serialid][serialport][mgntmac][inframac][extmac][extip][extsub][attr1][value1].."
+        print "  computer: add a computer node to the testbed (sp parameter is optional)"
+        print "\tcreate [netbootable][infrastructure][location][macaddr][powerid][powerport][serialid][serialport][spid][attr1][value1].."
+        print "\tdelete [computerid1][computerid2]...\n"
+        print "  mote: add or delete a mote node from the testbed"
+        print "\tcreate [MAC][attr1][value1].."
+        print "\tdelete [moteid1][moteid2]...\n"
+        print "  serial: add or delete a serial node from the testbed"
+        print "\tcreate [vendor][model][mac][powerid][powerport][username][password][location][attr1][value1]..."
+        print "  switch: add a switch node to the testbed"
+        print "\tcreate [infrastructure][vendor][model][mac][powerid][powerport][serialid][serialport][location][attr1][value1]..."
+        print "  powerswitch: add a power switch node to the testbed"
+        print "\tcreate [vendor][model][mac][serialid][serialport][location][username][password][attr1][value1]..."
+        print "  router: add a router node to the testbed"
+        print "\tcreate [vendor][model][mac][powerid][powerport][serialid][serialport][location][attr1][value1]..."
+        print "  serviceprocessor: add a service processor node to the testbed"
+        print "\tcreate [mac][powerid][powerport][username][password][attr1][value1]..."
+        print "  sensor: add a sensor node to the testbed"
+        print "\tcreate [dhcp=yes][mac][location][vendor][model][attr1][value1]..."
+        print "\t       [dhcp=no][ipaddress][mac optional][location][vendor][model][attrib1][value1]..."
+        print "  kvm: add a kvm node to the testbed"
+        print "\tcreate [vendor][model][rackid][rackstartunit][rackendunit][position(front|rear|both)][attr1][value1]..."
+        print "--------------------------------------------------------------------------"        
+
+    if (command == "all" or command=="power"):
+        print "power: power a node on, off, restart it, return its power status or get its current usage"
+        print "\tpoweron [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\tpoweroff [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\trestart [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\tsoftpoweron [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\tsoftpoweroff [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\tsoftrestart [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\tstatus [node1 node2 ...] or [all] or [range node1 node2]"
+        print "\tinfo [node1 node2 ...] or [all] or [range node1 node2]"
+        print ".........................................................................."
+        print "\tEmergency power commands"
+        print "\tThe priority levels are : 1:Critical to 10:Normal"
+        print "\t\t 1: servers, 2: switches, 3: terminal servers, 10: computers"
+        print "\tpoweron location [rack|room|floor] [rack_name|room_name|floor_name] priority [priority_level]"
+        print "\tpoweroff location [rack|room|floor] [rack_name|room_name|floor_name] priority [priority_level]"
+        print "\tstatus location [rack|room|floor] [rack_name|room_name|floor_name] priority [priority_level]"
+        print "\tinfo location [rack|room|floor] [rack_name|room_name|floor_name] priority [priority_level]"
+        print "--------------------------------------------------------------------------"
+    if (command == "all" or command=="pwr"):
+        print "power: power a node on, off, restart it, return its power status or get its current usage"
+    if (mode == EXPERT and (command == "all" or command=="redetect")):
+        print "redetect: netboots a node with the auto-detect kernel and filesystem"
+        print "\t[nodeid]"
+        print "--------------------------------------------------------------------------"        
+
+    if (command == "all" or command=="status"):
+        print "status: sets or gets the current status of a physical element or experiment"
+        print "  physical: sets or gets the current status of a node or infrastructure"
+        print "\tset [(operational|maintenance|retired|dead)] [element]"
+        print "\tget [element]"
+        print "  experiment: sets or gets the current status of an experiment"
+        print "\tset [(active|expired)] [experimentid]"
+        print "\tget [experimentid]"        
+        print "--------------------------------------------------------------------------"                
+
+    if (command == "all" or command=="porttest"):
+        print "porttest : tests a ports status and optionally runs a tdr test"
+	print "\tsimple : [element] [interface]"
+	print "\ttdr : [element] [interface]"
+	
+        print "--------------------------------------------------------------------------"
+    if (command == "all" or command=="port"):
+        print "port: provides information about the ports on a device"
+	print "\tlist : [element]"
+	print "\tlist vlan : [element]"
+        print "--------------------------------------------------------------------------"
+    if (command == "all" or command=="vlan"):
+        print "vlan : vlan status of element"
+	print "\tshow interface : [element] <interface> | (left empty it will show all interfaces)"
+        print "\tshow port : [switch] [port string]"
+        print "\tshow name : [vlan name] "
+        print "\tshow user : [user name] "
+        print "\tshow empty : [switch]"
+        print "\tcreate : [vlan name] [user name] "
+        print "\tadd : [vlan name] [user name] [tagged|untagged] [element] [interface] "
+        print "\tadd : [vlan name] [user name] [tagged|untagged] [switch] [port string] "
+        print "\tconnect : [vlan name] [user name] [element] [interface] [element] [interface]"
+        print "--------------------------------------------------------------------------"
+    if (command == "all" or command=="reservation"):
+        print "reservation : machine reservation"
+        print "\tInfo -> devices should be comma-separated, date in dd/mm/yyyy format" 
+              
+        print "\treserve : [devices] [end date] [email]"
+        print "\trelease : [reservation id]"
+        print "\trenew : [reservation id] [end date]"
+        print "\tupdate : [reservation id] [add|remove] [devices] [(email)]"        
+        print "\twhohas : [device]"
+        print "\tinuseby : [username]"
+        print "\tnotinuse : <models | power <poweron,poweroff,status> >"
+        print "\tshow : <user | all>"
+        print "--------------------------------------------------------------------------"
+    os._exit(0)
+
+###########################################################################################
+#   Main execution
+###########################################################################################
+if (len(sys.argv) < 2):
+    commandsMenu()
+    os._exit(0)
+
+command = sys.argv[1]
+
+try:
+       config = os.environ['HENCONFIG']
+       manager = HenManager(config)
+except KeyError, e:
+       manager = HenManager()
+
+macAddressMatcher = re.compile('(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}')
+moteMacAddressMatcher = re.compile('(?:[0-9A-Fa-f]{2}:){7}[0-9A-Fa-f]{2}')
+
+########################################
+##   connectivity
+########################################
+if(command == "connectivity"):
+    if (len(sys.argv) < 3):
+        print "hm connectivity: parameter missing\n"
+        commandsMenu("connectivity")
+    else:
+        for i in range(2, len(sys.argv)):
+            print sys.argv[i]
+            manager.nodeConnectivity(sys.argv[i])
+
+########################################
+##   console
+########################################
+elif(command == "console"):
+    len = len(sys.argv)
+    if (len < 3):
+        print "hm console: parameter missing\n"
+        commandsMenu("console")
+    elif (len > 4):
+	if(len == 5):
+		manager.console(sys.argv[4],"getbaud",0)
+	else:
+		manager.console(sys.argv[5],"setbaud",sys.argv[4])
+    else:
+        nodeID = sys.argv[2]
+        manager.console(nodeID,"",0)
+
+########################################
+##   delete
+########################################
+elif(command == "delete"):
+    if (len(sys.argv) < 3):
+        print "hm delete: parameter missing\n"
+        commandsMenu("delete")
+    else:
+        answer = raw_input("Are you sure you want to delete" + str(sys.argv[2]) + "? [yes/no]:")
+        if (answer == "yes"):
+            (retCode, message) = manager.elementDelete(sys.argv[2])
+            if (retCode == 0):
+                print "deleted: " + message
+            else:
+                print message
+
+########################################
+##   dhcpserver
+########################################
+elif(command == "dhcpserver"):
+    if (len(sys.argv) < 3):
+        print "hm dhcpserver: parameter missing\n"
+        commandsMenu("dhcpserver")
+    else:
+        action = sys.argv[2]
+        if (action == "restart") or (action == "create") or (action == "stop") or (action == "start"):
+	    manager.dhcpServer(action)
+	else:
+	    print "hm dhcpserver unrecognized action: " + action + "\n"
+            commandsMenu("dhcpserver")
+
+########################################
+##   dnsserver
+########################################
+elif(command == "dnsserver"):
+    if (len(sys.argv) < 3):
+        print "hm dnsserver: parameter missing\n"
+	commandsMenu("dnsserver")	
+    else:
+        action = sys.argv[2]
+	if (action == "restart") or (action == "create") or (action == "stop") or (action == "start"):
+	    manager.dnsServer(action)
+	else:
+	    print "hm dnsserver unrecognized action: " + action + "\n"
+            commandsMenu("dnsserver")
+
+#######################################
+##   experiment
+########################################
+elif(command == "experiment"):
+    if (len(sys.argv) < 4):
+        print "hm experiment: parameter missing\n"
+	commandsMenu("experiment")
+    else:
+        action = sys.argv[2]
+        if (action == "create"):
+            manager.experimentCreate(sys.argv[3])
+        elif (action == "delete"):
+            manager.experimentDelete(sys.argv[3])
+        else:
+            print "hm experiment unrecognized action: " + action + "\n"
+            commandsMenu("experiment")
+
+#######################################
+##   inventory
+########################################
+elif(command == "inventory"):
+    
+    if (len(sys.argv) < 3):
+        print "hm inventory: parameter missing\n"
+	commandsMenu("inventory")
+    else:
+        action = sys.argv[2]
+        if (action == "element"):
+            if (len(sys.argv) < 4):
+                print "hm inventory element: parameter missing\n"
+                commandsMenu("inventory")
+            else:
+                if (len(sys.argv) == 5):
+                    if (sys.argv[3] == "lshw"):
+                        manager.getInventory(action, sys.argv[4] , True)
+                    else:
+                        manager.getInventory(action, sys.argv[3])
+                else:
+                    manager.getInventory(action, sys.argv[3])
+        elif (action == "type"):
+            if (len(sys.argv) < 4):
+                print "hm inventory type: parameter missing\n"
+                commandsMenu("inventory")
+            else:
+                manager.getInventory(action, sys.argv[3])
+        elif (action == "all"):
+            manager.getInventory(action)
+        elif (action == "alltypes"):
+            manager.getInventory(action)
+        elif (action == "free"):
+            #for i in range(0,len(sys.argv)):
+            #    print i,sys.argv[i]
+            print "Next free "+sys.argv[4]+" "+sys.argv[3]+" is "+manager.get_free(sys.argv[3],sys.argv[4])
+        else:
+            print "hm inventory unrecognized action: " + action + "\n"
+            commandsMenu("inventory")            
+elif(command == "reload"):
+    print manager.reload()
+#######################################
+##   infrastructure
+########################################
+elif (command == "infrastructure"):
+    if (len(sys.argv) < 5):
+        print "hm infrastructure: parameter missing\n"
+	commandsMenu("infrastructure")
+
+    ############### infrastructure rack ########################
+    elif (sys.argv[2] == "rack"):
+
+        ############### create ################        
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 18):
+                print "hm infrastructure rack create: parameter missing\n"
+                commandsMenu("infrastructure")
+            else:
+                manager.infrastructureRackCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], \
+                                                 sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], \
+                                                 sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], \
+                                                 sys.argv[16], sys.argv[17])                
+        else:
+            print "hm infrastructure rack: unrecognized action: " + sys.argv[3]
+            commandsMenu("infrastructure")
+
+    ############### infrastructure floorbox ########################
+    elif (sys.argv[2] == "floorbox"):
+
+        ############### create ################        
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 37):
+                print "hm infrastructure floorbox create: parameter missing\n"
+                commandsMenu("infrastructure")
+            else:
+                manager.infrastructureFloorBoxCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], \
+                                                 sys.argv[8], sys.argv[9], sys.argv[10], sys.argv[11], \
+                                                 sys.argv[12], sys.argv[13], sys.argv[14], sys.argv[15], \
+                                                 sys.argv[16], sys.argv[17], sys.argv[18], sys.argv[19], \
+                                                 sys.argv[20], sys.argv[21], sys.argv[22], sys.argv[23], \
+                                                 sys.argv[24], sys.argv[25], sys.argv[26], sys.argv[27], \
+                                                 sys.argv[28], sys.argv[29], sys.argv[30], sys.argv[31], \
+                                                 sys.argv[32], sys.argv[33], sys.argv[34], sys.argv[35], \
+                                                 sys.argv[36])
+        else:
+            print "hm infrastructure rack: unrecognized action: " + sys.argv[3]
+            commandsMenu("infrastructure")
+
+                
+    ############### unrecognized infrastructure type ####################
+    else:
+        print "hm node unrecognized infratructure type: " + sys.argv[2] + "\n"
+        commandsMenu("infrastructure")
+
+########################################
+##   monitor
+########################################
+elif (command == "monitor"):
+    if (len(sys.argv) < 4):
+        print "hm monitor: parameter missing\n"
+        commandsMenu("monitor")
+    else:
+        sensorType = sys.argv[2]
+        if not (sensorType in Device().getSensorClasses()) and \
+        		not sensorType == "all":
+        	print "hm monitor: unknown sensor class\n"
+        	commandsMenu("monitor")      
+        if (sys.argv[3] == "range"):
+            if (len(sys.argv) < 6):
+                print "hm monitor: parameters missing"
+                commandsMenu("monitor")
+
+            if (sys.argv[4][:findFirstNumberInString(sys.argv[4])] != sys.argv[5][:findFirstNumberInString(sys.argv[5])]):
+                print "hm monitor: nodes given for range must be of similar types"
+                commandsMenu("monitor")
+
+            firstNumber = int(sys.argv[4][findFirstNumberInString(sys.argv[4]):])
+            lastNumber = int(sys.argv[5][findFirstNumberInString(sys.argv[5]):])
+            nodeType = sys.argv[4][:findFirstNumberInString(sys.argv[4])]
+            for i in range(firstNumber, lastNumber + 1):
+                manager.getSensorReadings(nodeType + str(i), sensorType)
+        elif (sys.argv[3] == "all"):
+            nodes = manager.getNodes("all")
+            for nodeType in nodes.keys():
+                if (nodeType != "serviceprocessor"):
+                    specificNodeType = nodes[nodeType]
+                    for specificNode in specificNodeType.values():
+                        manager.getSensorReading(sspecificNode.getNodeID(), \
+                        							sensorType)
+        else:    
+            for i in range(3, len(sys.argv)):
+                node = sys.argv[i]
+                manager.getSensorReadings(node, sensorType)
+    
+########################################
+##   mote
+########################################
+elif (command == "mote"):
+    if (len(sys.argv) < 3):
+        commandsMenu("mote")
+
+
+    ###############  mote list  ########################
+    if (sys.argv[2] == "list"):
+        manager.moteList(sys.argv[3:])
+
+    ###### mote ps ######
+    elif sys.argv[2] == "ps" :
+	    manager.motePs(sys.argv[3:])
+
+    ###############  mote detect  ########################
+    elif (sys.argv[2] == "detect"):
+        manager.moteDetect(sys.argv[3:])
+
+    ###############  mote install  ########################
+    elif (sys.argv[2] == "install"):
+
+        if len(sys.argv) < 6 :
+            print "hm mote install: parameter missing\n"
+            commandsMenu("mote")
+
+        platform = sys.argv[3]
+        appdir   = sys.argv[4]
+
+        if platform not in ["tinyos","tinyos1","tinyos2"] and not platform.startswith("contiki") :
+            print "hm mote install: sorry we only support 'tinyos', \
+                    'tinyos1', 'tinyos2' and 'contiki' not %s" % platform
+            sys.exit(1)
+
+        try:
+            appdir = os.path.abspath(appdir)
+        except:
+            print "hm mote install: cannot determine absolute application path: %s" % appdir
+            sys.exit(1)
+
+        if os.access(appdir, os.F_OK) == 0:
+            print "hm mote install: application directory does not exist: %s" % appdir
+            sys.exit(1)
+
+        if os.access(appdir+"/Makefile", os.F_OK|os.R_OK) == 0:
+            print "hm mote install: no Makefile exists in this directory: %s" % appdir
+            sys.exit(1)
+
+        if platform.startswith("tinyos") :
+            if os.access(appdir + "/build", os.F_OK) == 0 :
+                print "you have to compile your app with 'make tmote' before installing it"
+                sys.exit(1)
+
+        os.system("chmod -R 777 %s 2> /dev/null" % appdir)
+    
+        manager.moterpc("install", platform, appdir, sys.argv[5:])
+      
+    elif (sys.argv[2] == "log"):
+        
+        if len(sys.argv) < 5:
+            commandsMenu("mote")
+
+        action = sys.argv[3]
+        appdir = sys.argv[4]
+        if action not in ["start","stop"] :
+            commandsMenu("mote")
+
+        if action == "start" and len(sys.argv) >= 6:
+            try:
+                appdir = os.path.abspath(appdir)
+            except:
+                print "hm mote log: cannot determine absolute application path: %s" % appdir
+                sys.exit(1)
+
+            # ensure that sys.argv[4] is a dir and that we can write to it
+            if not os.path.exists(appdir) :
+                print "%s does not exist" % sys.argv[4]
+                sys.exit(1)
+            if not os.path.isdir(sys.argv[4]) :
+                print "you must specify a directory"
+                sys.exit(1)
+
+            os.system("chmod -R 777 %s 2> /dev/null" % appdir)
+
+            manager.moterpc("log", action, appdir, sys.argv[5:])
+
+        elif sys.argv[3] == "stop" and len(sys.argv) >= 5:
+            manager.moterpc("log", sys.argv[3], "", sys.argv[4:])
+        else:
+            commandsMenu("mote")
+    else :
+	    commandsMenu("mote")
+########################################
+##   node
+########################################
+elif (command == "node"):
+    if (len(sys.argv) < 5):
+        print "hm node: parameter missing\n"
+        commandsMenu("node")
+
+    ############### server node ########################
+    elif (sys.argv[2] == "server"):
+
+        ############### create ################        
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 12):
+                print "hm node server create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                # check management mac, if any
+                macAddress = sys.argv[7]
+                if (macAddress.upper() != "NONE"):
+                    if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                        print "hm node server create: not a valid mac address"
+                        commandsMenu("node")
+                # check infrastructure mac
+                macAddress = sys.argv[8]
+                if (macAddress.upper() != "NONE"):
+                    if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                        print "hm node server create: not a valid mac address"
+                        commandsMenu("node")
+                # check external mac, if any
+                macAddress = sys.argv[9]
+                if (macAddress.upper() != "NONE"):
+                    if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                        print "hm node server create: not a valid mac address"
+                        commandsMenu("node")                        
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 12
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+                print "currently broken, use the GUI"
+                #manager.serverNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+                #                         sys.argv[9], sys.argv[10], sys.argv[11], attributes)
+
+        else:
+            print "hm node server: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")
+        
+    ############### computer node ########################
+    elif (sys.argv[2] == "computer"):
+
+        ############### create ################        
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 12):
+                print "hm node computer create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                macAddress = sys.argv[7]
+
+                if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                    print "hm node computer create: not a valid mac address"
+                    commandsMenu("node")
+
+                serviceProcessorID = None
+                lastParameter = 11
+                if (len(sys.argv) == 13):
+                    serviceProcessorID = sys.argv[12]
+                    lastParameter = 12
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = lastParameter + 1
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+#                manager.computerNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+#                                           sys.argv[9], sys.argv[10], sys.argv[11], serviceProcessorID, attributes)
+                print "currently broken, use the GUI"
+
+        else:
+            print "hm node computer: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")
+
+    ############### mote node ########################
+    if (sys.argv[2] == "mote"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) != 6):
+                print "hm node mote create: parameter missing\n"
+                commandsMenu("node")
+#            else:
+#                macAddress = sys.argv[4]
+#               #if not moteMacAddressMatcher.match(macAddress) or len(macAddress) != 23:
+#		    macAddrPattern = re.compile("([0-9a-fA-F][0-9a-fA-F]:){5}([0-9a-fA-F][0-9a-fA-F])")
+#		    if macAddrPattern.match(macAddress) == None :
+#                print "hm node mote create: invalid mac: %s\n" % macAddress
+#                commandsMenu("node")
+#
+#            # create attributes dictionary, if any
+#            attributes = {}
+#            index = 5
+#            if (((len(sys.argv) - index) % 2) != 0):
+#                print "attributes must come in pairs"
+#                commandsMenu("node")
+#
+#            while (index < len(sys.argv)):
+#                attributes[sys.argv[index]] = sys.argv[index + 1]
+#                index += 2
+#
+#            manager.moteNodeCreate(sys.argv[4], attributes)
+            manager.moteNodeCreate(sys.argv[4], sys.argv[5])
+
+        ############### delete ###############
+        elif (sys.argv[3] == "delete"):
+            if len(sys.argv[4:]) == 0 :
+                commandsMenu("node")
+            manager.moteNodeDelete(sys.argv[4:])
+#            for i in range(4, len(sys.argv)):
+#                nodeID = sys.argv[i]
+#                manager.moteNodeDelete(nodeID)
+
+        else:
+            print "hm node mote: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")
+
+    ############### serial node ##########################
+    elif (sys.argv[2] == "serial"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 12):
+                print "hm node serial create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                macAddress = sys.argv[6]
+                if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                    print "hm node serial create: not a valid mac address"
+                    commandsMenu("node")
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 12
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+                #manager.serialNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+                #                         sys.argv[9], sys.argv[10], sys.argv[11], attributes)
+                print "currently broken, use the GUI"                
+                
+        else:
+            print "hm node serial: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")
+
+    ############### switch node ##########################
+    elif (sys.argv[2] == "switch"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 13):
+                print "hm node switch create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                macAddress = sys.argv[7]
+                if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                    print "hm node switch create: not a valid mac address"
+                    commandsMenu("node")
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 13
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+                #manager.switchNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+                #                         sys.argv[9], sys.argv[10], sys.argv[11], sys.argv[12], attributes)
+                print "currently broken, use the GUI"
+                                
+        else:
+            print "hm node switch: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")            
+    
+    ############### powerswitch node #####################    
+    elif (sys.argv[2] == "powerswitch"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 12):
+                print "hm node powerswitch create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                macAddress = sys.argv[6]
+                if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                    print "hm node powerswitch create: not a valid mac address"
+                    commandsMenu("node")
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 12
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+                #manager.powerswitchNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+                #                              sys.argv[9], sys.argv[10], sys.argv[11], attributes)
+                print "currently broken, use the GUI"                
+                
+        else:
+            print "hm node powerswitch: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")            
+
+    ############### router node ##########################    
+    elif (sys.argv[2] == "router"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 12):
+                print "hm node router create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                macAddress = sys.argv[6]
+                if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                    print "hm node router create: not a valid mac address"
+                    commandsMenu("node")
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 12
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+                #manager.routerNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+                #                         sys.argv[9], sys.argv[10], sys.argv[11], attributes)
+                print "currently broken, use the GUI"                
+                
+        else:
+            print "hm node router: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")                    
+
+    ############### serviceprocessor node ################
+    elif (sys.argv[2] == "serviceprocessor"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 9):
+                print "hm node serial create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                macAddress = sys.argv[4]
+                if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                    print "hm node serial create: not a valid mac address"
+                    commandsMenu("node")
+
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 9
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+
+                #manager.serviceprocessorNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], \
+                #                                   sys.argv[8], attributes)
+                print "currently broken, use the GUI"                
+                
+        else:
+            print "hm node serviceprocessor: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")
+            
+   ############### kvm node ##########################
+    elif (sys.argv[2] == "kvm"):
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 10):
+                print "hm node kvm create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                # create attributes dictionary, if any
+                attributes = {}
+                index = 10
+                if (((len(sys.argv) - index) % 2) != 0):
+                    print "attributes must come in pairs"
+                    commandsMenu("node")
+
+                while (index < len(sys.argv)):
+                    attributes[sys.argv[index]] = sys.argv[index + 1]
+                    index += 2
+                    
+                #manager.kvmNodeCreate(sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8], \
+                #                      sys.argv[9], attributes)
+                print "currently broken, use the GUI"                
+                                      
+        else:
+            print "hm node kvm: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")
+
+        
+   ############### sensor node ##########################
+    elif (sys.argv[2] == "sensor"):
+
+        ############### create ################
+        if (sys.argv[3] == "create"):
+            if (len(sys.argv) < 9):
+                print "hm node sensor create: parameter missing\n"
+                commandsMenu("node")
+            else:
+                # sensor will dhcp, enforce mac address
+                if (sys.argv[4] == "yes"):
+                    macAddress = sys.argv[5]
+                    if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                        print "hm node sensor create: not a valid mac address"
+                        commandsMenu("node")
+
+                    # create attributes dictionary, if any
+                    attributes = {}
+                    index = 9
+                    if (((len(sys.argv) - index) % 2) != 0):
+                        print "attributes must come in pairs"
+                        commandsMenu("node")
+
+                    while (index < len(sys.argv)):
+                        attributes[sys.argv[index]] = sys.argv[index + 1]
+                        index += 2
+
+                    #manager.sensorNodeCreate(sys.argv[4], sys.argv[5], None, sys.argv[6], sys.argv[7], \
+                    #                         sys.argv[8], attributes)
+                    print "currently broken, use the GUI"
+                                        
+                # sensor does not do dhcp, enforce ip address, mac is optional
+                else:
+                    macAddress = sys.argv[6]
+                    physicalLocation = None
+                    vendor = None
+                    model = None
+                    if (not macAddressMatcher.match(macAddress) or len(macAddress) != 17):
+                        macAddress = None
+                        physicalLocation = sys.argv[6]
+                        vendor = sys.argv[7]
+                        model = sys.argv[8]
+                    else:
+                        physicalLocation = sys.argv[7]
+                        vendor = sys.argv[8]
+                        model = sys.argv[9]
+                        
+                    # create attributes dictionary, if any
+                    attributes = {}
+                    if (macAddress != None):
+                        index = 10
+                    else:
+                        index = 9
+                    if (((len(sys.argv) - index) % 2) != 0):
+                        print "attributes must come in pairs"
+                        commandsMenu("node")
+
+                    while (index < len(sys.argv)):
+                        attributes[sys.argv[index]] = sys.argv[index + 1]
+                        index += 2
+
+                    #manager.sensorNodeCreate(sys.argv[4], macAddress, sys.argv[5], physicalLocation, vendor, \
+                    #                         model, attributes)
+                    print "currently broken, use the GUI"                    
+                    
+        else:
+            print "hm node sensor: unrecognized action: " + sys.argv[3]
+            commandsMenu("node")        
+
+    ############### unrecognized node ####################
+    else:
+        print "hm node unrecognized node type: " + sys.argv[2] + "\n"
+        commandsMenu("node")
+	
+########################################
+##   power
+########################################
+elif(command == "power"):
+    if (len(sys.argv) < 4):
+        print "hm power: parameter missing\n"
+	commandsMenu("power")
+    else:
+        action = sys.argv[2]
+        if not(action == "poweron" or action == "poweroff" or action == "restart" or action == "status" or action == "info" or action == "softpoweron" or action == "softpoweroff" or action == "softrestart"):
+	    print "hm power unrecognized action: " + action + "\n"
+	    commandsMenu("power")
+            os.exit(1)
+
+        if ((action == "status" or action == "info") and sys.argv[3] == "all"):
+            nodes = manager.getNodes("all")
+            unknown = []
+            for nodeType in ("computer","server","router","serial","switch"):
+                for Node in nodes[nodeType].values():
+                    (val,res) = manager.powerSilent(Node.getNodeID(), action)
+                    if val == 0:
+                        print Node.getNodeID(), res
+                    else:
+                        unknown.append(str(Node.getNodeID()))
+            if unknown != []:
+                print "Devices with unknown power control :",
+                for u in unknown:
+                    print str(u),
+                print 
+        elif (sys.argv[3] == "range"):
+            if (len(sys.argv) < 6):
+                print "hm power: parameters missing"
+                commandsMenu("power")
+
+            if (sys.argv[4][:findFirstNumberInString(sys.argv[4])] != sys.argv[5][:findFirstNumberInString(sys.argv[5])]):
+                print "hm power: nodes given for range must be of similar types"
+                commandsMenu("power")
+
+            firstNumber = int(sys.argv[4][findFirstNumberInString(sys.argv[4]):])
+            lastNumber = int(sys.argv[5][findFirstNumberInString(sys.argv[5]):])
+            nodeType = sys.argv[4][:findFirstNumberInString(sys.argv[4])]
+            for i in range(firstNumber, lastNumber + 1):
+                manager.power(nodeType + str(i), action)
+
+        elif (sys.argv[3] == "location"):
+            if (len(sys.argv) != 6 and len(sys.argv) != 8):
+                print "hm power: parameters missing"
+                commandsMenu("power")
+            devices = []
+            nodes = manager.getNodes("all","all")
+            for t in nodes.keys():
+                for node in nodes[t].values():
+                    try:
+                        if (sys.argv[4] == "rack"):
+                            if ((node.getPhysicalLocation()).getRackName() == sys.argv[5]):
+                                devices.append(node)
+                        elif (sys.argv[4] == "floor"):
+                            if ((node.getPhysicalLocation()).getFloor() == sys.argv[5]):
+                                devices.append(node)
+                        elif (sys.argv[4] == "room"):
+                            if ((node.getPhysicalLocation()).getRoom() == sys.argv[5]):
+                                devices.append(node)
+                    except :
+                        pass
+            # sort devices by priority here
+            def devices_sort(a,b):
+                if int(a.getPriority()) < int(b.getPriority()):
+                    return 1
+                if int(a.getPriority()) == int(b.getPriority()):
+                    return 0
+                return -1
+            devices.sort(devices_sort)
+            if action == "poweron":
+                devices.reverse()
+            current_priority = int(devices[0].getPriority())    
+            for device in devices:
+                if (len(sys.argv) == 8):
+                    # check priority level
+                    if (action != "poweron" and int(device.getPriority()) >= int(sys.argv[7])):
+                        if current_priority != int(device.getPriority()) and action != "status" and action != "info" :
+                            # sleep to allow for sensible shutdown/startup
+                            print "sleeping between priority level change"
+                            time.sleep(20)
+                            current_priority = int(device.getPriority())
+                        try:     
+                            manager.power(str(device.getNodeID()), action)
+                        except:
+                            print "Failed to undertake power action on",str(device.getNodeID())
+                    elif (action == "poweron" and int(device.getPriority()) <= int(sys.argv[7])):
+                        if current_priority != int(device.getPriority()) and action != "status" and action != "info" :
+                            # sleep to allow for sensible shutdown/startup
+                            print "sleeping between priority level change"
+                            time.sleep(20)
+                            current_priority = int(device.getPriority())
+                        try:     
+                            manager.power(str(device.getNodeID()), action)
+                        except:
+                            print "Failed to undertake power action on",str(device.getNodeID())             
+                else:
+                    manager.power(str(device.getNodeID()), action)
+        else:
+	    for i in range(3, len(sys.argv)):
+	        node = sys.argv[i]
+		(val,res) = manager.powerSilent(node, action)
+                print str(node)+" "+str(res)
+                
+########################################
+##   redetect
+########################################
+elif(command == "old_redetect"):
+    if (len(sys.argv) < 3):
+        print "hm redetect: parameter missing\n"
+	commandsMenu("redetect")
+    else:
+        for i in range(2, len(sys.argv)):
+            manager.redetectComputerNode(sys.argv[i])
+
+elif(command == "redetect"):
+    if (len(sys.argv) < 3):
+        print "hm redetect: parameter missing\n"
+	commandsMenu("redetect")
+    else:
+        for i in range(2, len(sys.argv)):
+            manager.redetect(sys.argv[i])
+
+########################################
+##   status
+########################################
+elif(command == "status"):
+    if (len(sys.argv) < 5):
+        print "hm status: parameter missing\n"
+        commandsMenu("status")
+        
+   ############### physical node ##########################
+    elif (sys.argv[2] == "physical"):
+
+        action = sys.argv[3]
+        ############### set ########################        
+        if (action == "set"):
+            newStatus = sys.argv[4]
+            if (newStatus != "operational" and newStatus != "maintenance" and
+                newStatus != "retired" and newStatus != "dead"):
+                print "hm status physical set: invalid status " + str(newStatus)
+                commandsMenu("status")
+
+            manager.elementStatus(action, sys.argv[5], "physical", newStatus)
+
+        ############### get ########################
+        elif (action == "get"):
+            manager.elementStatus(action, sys.argv[4], "physical")
+        else:
+	    print "hm status physical unrecognized action: " + action + "\n"
+            commandsMenu("status")
+
+   ############### experiment #############################            
+    elif (sys.argv[2] == "experiment"):
+        
+        action = sys.argv[3]
+        ############### set ########################        
+        if (action == "set"):
+            newStatus = sys.argv[4]
+            if (newStatus != "active" and newStatus != "expired"):
+                print "hm status experiment set: invalid status " + str(newStatus)
+                commandsMenu("status")
+
+            manager.elementStatus(action, sys.argv[5], "experiment", newStatus)
+
+        ############### get ########################
+        elif (action == "get"):
+            manager.elementStatus(action, sys.argv[4], "experiment")
+        else:
+	    print "hm status experiment unrecognized action: " + action + "\n"
+            commandsMenu("status")
+
+    ############### unrecognized node ####################
+    else:
+        print "hm status unrecognized operation: " + sys.argv[2] + "\n"
+        commandsMenu("status")
+
+########################################
+##   port
+########################################
+elif(command == "port"):
+    if not (len(sys.argv) != 4 or len(sys.argv) != 5):
+        print "hm port: parameter missing\n"
+        commandsMenu("port")
+
+    ############### port list #############################
+    elif (sys.argv[2] == "list"):
+    	if len(sys.argv) ==4 :        
+    		print manager.port_list(sys.argv[3])
+    	elif len(sys.argv) == 5 :
+    		if (sys.argv[3] == "vlan"):
+	    		print manager.port_list_and_vlan(sys.argv[4])
+    	else:
+			print "hm port: incorrect test type\n"
+			commandsMenu("port")
+    else:
+		print "hm port: incorrect test type\n"
+		commandsMenu("port")
+########################################
+elif(command == "porttest"):
+    if (len(sys.argv) != 5):
+        print "hm porttest: parameter missing\n"
+        commandsMenu("porttest")
+         
+    ############### simple test ##########################
+    elif (sys.argv[2] == "simple"):        
+    	print manager.portTest(False,sys.argv[3],sys.argv[4])
+    ############### tdr test #############################
+    elif (sys.argv[2] == "tdr"):        
+    	print manager.portTest(True,sys.argv[3],sys.argv[4])
+    else:
+	print "hm porttest: incorrect test type\n"
+        commandsMenu("porttest")
+########################################
+##   vlan
+########################################
+elif(command == "vlan"):
+    if not (len(sys.argv) == 6 or len(sys.argv) == 5 or len(sys.argv) == 7 or len(sys.argv) == 8 or len(sys.argv) == 9 or len(sys.argv) == 4):
+        print "hm vlan: parameter missing\n"
+        commandsMenu("vlan")
+ 
+    ############### simple test ##########################
+    elif (sys.argv[2] == "show"):
+        if sys.argv[3] == "interface":
+            if len(sys.argv) == 5:
+                print manager.vlan_show_interface(sys.argv[4])
+            if len(sys.argv) == 6:
+                print manager.vlan_show_interface(sys.argv[4],sys.argv[5])
+            
+        elif sys.argv[3] == "port":
+            if len(sys.argv) == 6 :
+                print manager.vlan_show_port(sys.argv[4],sys.argv[5])
+            if len(sys.argv) == 7 :
+                print manager.vlan_show_port(sys.argv[4],sys.argv[5],sys.argv[6])
+        elif sys.argv[3] == "name":
+            print manager.vlan_show_name(sys.argv[4])
+        elif sys.argv[3] == "user":
+            print manager.vlan_show_user(sys.argv[4])
+        elif sys.argv[3] == "port":
+            print manager.vlan_show_port(sys.argv[4],sys.argv[5:])
+        elif sys.argv[3] == "empty":
+        	print manager.vlan_show_empty(sys.argv[4])
+        elif sys.argv[3] == "nextfreeid":
+             print manager.vlan_next_free_id()    
+        else :
+            print "hm vlan: incorrect command type (%s)\n",sys.argv
+            commandsMenu("vlan")
+    elif (sys.argv[2] == "create"):
+        print manager.vlan_create(sys.argv[3],sys.argv[4])
+    elif (sys.argv[2] == "add"):
+        #print len(sys.argv),sys.argv
+        if len(sys.argv) == 8:
+            print manager.vlan_add(sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7])
+        if len(sys.argv) == 9:
+            print manager.vlan_add(sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7],sys.argv[8])
+    elif (sys.argv[2] == "remove"):
+        #print len(sys.argv),sys.argv
+        if len(sys.argv) == 8:
+            print manager.vlan_remove(sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7])
+        if len(sys.argv) == 9:
+            print manager.vlan_remove(sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7],sys.argv[8])
+    elif (sys.argv[2] == "mode"):
+        if (sys.argv[3] == "set"):
+            if len(sys.argv) == 7:
+                print manager.vlan_port_mode_set(sys.argv[4],sys.argv[5],sys.argv[6])
+            elif len(sys.argv) == 8:
+                print manager.vlan_port_mode_set(sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7])
+            else:
+                commandsMenu("vlan")
+        elif (sys.argv[3] == "get"):
+            if len(sys.argv) == 6:
+                print manager.vlan_port_mode_get(sys.argv[4],sys.argv[5])
+            elif len(sys.argv) == 7:
+                print manager.vlan_port_mode_get(sys.argv[4],sys.argv[5],sys.argv[6])
+            else:
+                commandsMenu("vlan")
+        else:
+            commandsMenu("vlan")
+    elif (sys.argv[2] == "connect"):
+        #print "\tconnect : [vlan name] [user name] [element] [interface] [element] [interface]" 
+        #print len(sys.argv),sys.argv
+        if len(sys.argv) == 9:
+            print manager.vlan_connect(sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6],sys.argv[7],sys.argv[8])
+    else:
+        print "hm vlan: incorrect command ("+str(sys.argv)+") "+str(len(sys.argv))+"\n"
+        commandsMenu("vlan")        
+########################################
+##   reservation
+########################################
+elif(command == "reservation"):
+    #if not (len(sys.argv) == 6 or len(sys.argv) == 3 or len(sys.argv) == 4 or len(sys.argv) == 5):
+    if (len(sys.argv) < 3):
+        print "hm reservation: parameter missing\n"
+        commandsMenu("reservation")
+    if (sys.argv[2] == "reserve"):
+        if (len(sys.argv) == 6):
+            print manager.reservation_reserve(username,sys.argv[3],sys.argv[4],sys.argv[5])
+        else :
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "release"):
+        if (len(sys.argv) == 4):
+            print manager.reservation_release(username,sys.argv[3])
+        else :
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "renew"):
+        if (len(sys.argv) == 5):
+            print manager.reservation_renew(username,sys.argv[3],sys.argv[4])
+        else :
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "update"):
+        email = None
+        if (len(sys.argv) >= 6) and ( (sys.argv[4] == "add") or (sys.argv[4] == "remove") ):        
+            if (len(sys.argv) == 7):
+                email = sys.argv[6]
+            print manager.reservation_update(username, sys.argv[3], sys.argv[4], sys.argv[5], email)
+        else:
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "whohas"):
+        if (len(sys.argv) == 4):
+            print manager.reservation_whohas(sys.argv[3])
+        else:
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "inuseby"):
+        if (len(sys.argv) == 4):
+            print manager.reservation_inuseby(sys.argv[3])
+        else:
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "notinuse"):
+        if (len(sys.argv) == 3):
+            print manager.reservation_notinuse()
+        elif (len(sys.argv) == 4):
+            if sys.argv[3] == "models":
+                print manager.reservation_notinuse(sys.argv[3])
+            else :
+                commandsMenu("reservation")
+        elif (len(sys.argv) == 5):
+            if sys.argv[3] == "power":
+                print manager.reservation_notinuse_power(sys.argv[4])
+            else :
+                commandsMenu("reservation")
+        else :
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "cleanexpired"):
+        if (len(sys.argv) == 3):
+            print manager.reservation_cleanexpired()
+        else :
+            commandsMenu("reservation")
+    elif (sys.argv[2] == "show"):
+        if len(sys.argv) == 3:
+            print manager.reservation_show(username)
+        elif len(sys.argv) == 4:
+            print manager.reservation_show(sys.argv[3])
+        else:
+            commandsMenu("reservation")
+    else:
+        commandsMenu("reservation")
+
+########################################
+elif(command == "pwr"):
+     if (len(sys.argv) < 4):
+         print "hm pwr: parameter missing ("+str(len(sys.argv))+")\n"
+         commandsMenu("pwr")
+     if (sys.argv[2] == "poweron" or \
+        sys.argv[2] == "poweroff" or \
+        sys.argv[2] == "restart" or \
+        sys.argv[2] == "status" or \
+        sys.argv[2] == "fullinfo" or \
+        sys.argv[2] == "info"):
+            print manager.pwr(username,sys.argv[2],sys.argv[3:])
+     else :
+            commandsMenu("pwr")
+########################################
+##   unrecognized command
+########################################
+else:
+    print "unrecognized command"
+    commandsMenu()

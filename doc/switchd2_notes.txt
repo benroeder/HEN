@@ -1,0 +1,23 @@
+
+vlan : vlan status of element
+        show interface : [element] <interface> | (left empty it will show all interfaces)
+        show port : [switch] [port string]
+        show name : [vlan name] 
+        show user : [user name] 
+        show empty : [switch]
+        create : [vlan name] [user name] 
+        add : [vlan name] [user name] [tagged|untagged] [element] [interface] 
+        add : [vlan name] [user name] [tagged|untagged] [switch] [port string] 
+
+
+adam@cockerel:~/development/svn/hen_scripts$ bin/hm vlan show interface computer80
+computer80 interface9 is Error with vlanShowPort 'NoneType' object has no attribute 'getSwitch'
+
+adam@cockerel:~/development/svn/hen_scripts$ bin/hm vlan add adam01 adam untagged switch14 GigabitEthernet 7/26
+switch14 GigabitEthernet 7/26 is a success
+
+adam@cockerel:~/development/svn/hen_scripts$ bin/hm vlan show port switch14 GigabitEthernet 7/26
+]switch14 GigabitEthernet 7/26 is untagged : adam01; tagged :  adam01 (15)
+
+ bin/hm vlan remove adam01 adam untagged switch14 GigabitEthernet 7/26
+switch14 GigabitEthernet 7/26 is a Error with vlanRemovePort Force10E1200Switch instance has no attribute 'removeUntaggedPort'

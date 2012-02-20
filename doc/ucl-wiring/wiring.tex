@@ -1,0 +1,598 @@
+\documentclass[a4paper]{article}
+\usepackage{epsfig,tabularx,supertabular,alltt,graphics,subfigure}
+\usepackage{verbatim,rotating,float}
+\usepackage{pdfpages}
+\pagestyle{headings}
+\begin{document}
+\title{Hen Testbed wiring - v0.1.9}
+\author{Adam Greenhalgh}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\section{Document History}
+\begin{tabular}{|l|l|}
+\hline
+Document Version & Comment \\
+\hline
+0.1 & Wiring diagram given to cablers. \\
+0.1.1 & Wiring diagram given to cablers with errors list after cabling. Corrections are not reflected in the diagrams yet. \\ 
+0.1.2 & Broken cables list added.\\
+0.1.3 & Adding in rack 2\\
+0.1.4 & More broken cables listed.\\
+0.1.5 & Rack 2 finished and directions for cabling phase two added.\\
+0.1.6 & Change power switch type and add wiring phase two list.\\
+0.1.7 & Added Underfloor cabling layouts.\\
+0.1.8 & Revised error list following cabling phase 2.\\
+0.1.9 & Rack1 and Rack4 cabling, corrections to underfloor wiring.\\
+\hline
+\end{tabular}
+
+\section{Cable colour codes}
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Colour & Role \\
+\hline
+Red & External \\
+Green & Management \\
+Yellow & Infrastructure \\
+Grey & Experimental \\
+Blue & Serial \\
+Labelled blue cable & Cisco console cable \\
+Labelled yellow cable & Crossover cable \\ 
+\hline
+\end{tabular}
+\end{center}
+
+\newpage
+
+\section{Notes}
+\subsection{Note 1}
+
+Connecting the x4100s from rack 3 to the force10 switch rack 4.
+
+The four interfaces (Net2,Net3,PCIX1:0,PCIX1:1) of each X4100 connects
+to the first free port on line cards 0,1,2,3. The first machine
+(working from the top) connects to port 0 on each line card, the
+second machine to port 1 etc all the way to the bottom machine
+(machine 30) which connects to port 29. Examples are below. 
+\\
+Orange\\
+\\
+Top machine :\\
+Net2 $\rightarrow$ Line slot 0 port 0\\
+Net3 $\rightarrow$ Line slot 1 port 0\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 0\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 0\\
+\\
+Second machine :\\
+Net2 $\rightarrow$ Line slot 0 port 1\\
+Net3 $\rightarrow$ Line slot 1 port 1\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 1\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 1\\
+\\
+Bottom machine :\\
+Net2 $\rightarrow$ Line slot 0 port 29\\
+Net3 $\rightarrow$ Line slot 1 port 29\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 29\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 29\\
+
+\subsection{Note 2}
+
+
+Pin out of cisco console cable, please say if different to cable
+already given to you.
+\\
+Brown 1 - 8 \\
+Orange 2 - 2\\
+Blue 3 - 4\\
+Light Green 4 - 3\\
+Green 5 - 6\\
+Light Blue 6 - 5\\
+Light Brown 7 - 7\\
+Light Orange 8 - 1\\
+\\
+
+\subsection{Note 3}
+
+Connecting the Sun v20z's from rack 5 to the force10 switch rack 4.
+
+The four interfaces (PCIX0:0,PCIX0:1,PCIX1:0,PCIX1:1) of each sunv20x connects
+to the first free port on line cards 0,1,2,3. The first machine
+(working from the top) connects to port 30 on each line card, the
+second machine to port 31 etc all the way to the bottom machine
+(machine 6) which connects to port 35. Examples are below.
+\\
+ORANGE cables\\
+\\
+Top machine : \\
+PCIX0:0 $\rightarrow$ Line slot 0 port 30\\
+PCIX0:1 $\rightarrow$ Line slot 1 port 30\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 30\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 30\\
+\\
+Second machine :\\
+PCIX0:0 $\rightarrow$ Line slot 0 port 31\\
+PCIX0:1 $\rightarrow$ Line slot 1 port 31\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 31\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 31\\
+\\
+Bottom machine :\\
+PCIX0:0 $\rightarrow$ Line slot 0 port 35\\
+PCIX1:1 $\rightarrow$ Line slot 1 port 35\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 35\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 35\\
+
+\subsection{Note 4}
+
+Connecting the 5 dell 1850's from rack 5 to the force10 switch rack 4.
+
+The four interfaces (PCIX2:0,PCIX2:1,PCIX1:0,PCIX1:1) of each the
+1850's connects to the first free port on line cards 0,1,2,3. The
+first machine (working from the top) connects to port 36 on each line
+card, the second machine to port 37 etc all the way to the bottom
+machine (machine 6) which connects to port 40. Examples are below.
+\\
+ORANGE cables\\
+\\
+Top machine : \\
+PCIX2:0 $\rightarrow$ Line slot 0 port 36\\
+PCIX2:1 $\rightarrow$ Line slot 1 port 36\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 36\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 36\\
+\\
+Second machine :\\
+PCIX2:0 $\rightarrow$ Line slot 0 port 37\\
+PCIX2:1 $\rightarrow$ Line slot 1 port 37\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 37\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 37\\
+\\
+Bottom machine :\\
+PCIX2:0 $\rightarrow$ Line slot 0 port 40\\
+PCIX2:1 $\rightarrow$ Line slot 1 port 40\\
+PCIX1:0 $\rightarrow$ Line slot 2 port 40\\
+PCIX1:1 $\rightarrow$ Line slot 3 port 40\\
+
+\subsection{Note 5}
+
+Connecting the 4 dell optiplex's from rack 5 to the force10 switch rack 4.
+\\
+ORANGE cables\\
+\\
+First (top) optiplex \\
+Net1: 0 slot 0 port 41\\
+Net2: 1 slot 1 port 41\\
+\\
+Second optiplex\\
+Net1: 2 slot 2 port 41\\
+Net2: 3 slot 3 port 41\\
+\\
+Third optiplex\\
+Net1: 0 slot 0 port 42\\
+Net2: 1 slot 1 port 42\\
+\\
+Forth (bottom) optiplex\\
+Net1: 2 slot 2 port 42\\
+Net2: 3 slot 3 port 42\\
+
+\subsection{Note 6}
+
+See section \ref{ref:rack5spare}.
+
+%We also wish to have 2 spare sets of connections in rack 5 to enable
+%us to plug in evalution equipment as and when it arrives.
+%\\
+%\\
+%Set 1: to be run to position 18 of rack 5\\
+%GREEN : switch10 , port 16\\
+%YELLOW : switch10, port 31\\
+%ORANGE : force10, slot 0 port 43\\
+%ORANGE : force10, slot 1 port 43\\
+%ORANGE : force10, slot 2 port 43\\
+%ORANGE : force10, slot 3 port 43\\
+%POWER : powerswitch6, port 6\\
+%BLUE : serial5, port16 (standard cable)\\
+%\\
+%Set 2: to be run to position 14 of rack 5\\
+%GREEN : switch10 , port 17\\
+%YELLOW : switch10, port 32\\
+%ORANGE : force10, slot 0 port 44\\
+%ORANGE : force10, slot 1 port 44\\
+%ORANGE : force10, slot 2 port 44\\
+%ORANGE : force10, slot 3 port 44\\
+%POWER : powerswitch6, port 7\\
+%BLUE : serial5, port17 (standard cable)\\
+
+\subsection{Note 7}
+
+Connecting the dell 1950's from rack 2 to the force10 switch rack 4.
+
+The four interfaces (PCIE2:0,PCIE2:1,PCIX1:0,PCIX1:1) of each dell 1950s connects
+to the first free port on line cards 4,5,6,7. The first machine
+(working from the top) connects to port 0 on each line card, the
+second machine to port 1 etc all the way to the bottom machine
+(machine 25) which connects to port 24. Examples are below. 
+\\
+Orange\\
+\\
+Top machine :\\
+PCIE2:0 $\rightarrow$ slot 4 port 0\\
+PCIE2:1 $\rightarrow$ slot 5 port 0\\
+PCIE1:0 $\rightarrow$ slot 6 port 0\\
+PCIE1:1 $\rightarrow$ slot 7 port 0\\
+\\
+Second machine :\\
+PCIE2:0 $\rightarrow$ slot 4 port 1\\
+PCIE2:1 $\rightarrow$ slot 5 port 1\\
+PCIE1:0 $\rightarrow$ slot 6 port 1\\
+PCIE1:1 $\rightarrow$ slot 7 port 1\\
+\\
+Bottom machine :\\
+PCIE2:0 $\rightarrow$ slot 4 port 24\\
+PCIE2:1 $\rightarrow$ slot 5 port 24\\
+PCIX1:0 $\rightarrow$ slot 6 port 24\\
+PCIX1:1 $\rightarrow$ slot 7 port 24\\
+
+\subsection{Note 8}
+
+See section \ref{ref:rack2spare}.
+
+\newpage
+
+\section{Rack1}
+
+\begin{figure}[h!]
+\begin{center}
+\resizebox{!}{150mm}{\includegraphics {rack1/rack1.pdf} }
+\caption{Rack 1, Rear view}
+\label{fig:Rack1}
+\end{center}
+\end{figure}
+
+\input{rack1/rack1}
+
+\includepdf[nup=1x1, landscape,
+column=false,pages=1,
+addtotoc={1,subsection,2,Dell 2950 (6 interface),},
+pagecommand={\thispagestyle{headings}}]{rack1/dell2950-6interface.pdf}
+
+\includepdf[nup=1x1, landscape,
+column=false,pages=1,
+addtotoc={1,subsection,2,Dell 2950 (12 interface),},
+pagecommand={\thispagestyle{headings}}]{rack1/dell2950-12interface.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 4,},
+  pagecommand={\thispagestyle{headings}}]{rack1/powerswitch4.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 7,},
+  pagecommand={\thispagestyle{headings}}]{rack1/powerswitch7.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 14,},
+  pagecommand={\thispagestyle{headings}}]{rack1/powerswitch14.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,serial 7,},
+  pagecommand={\thispagestyle{headings}}]{rack1/serial7.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 16,},
+  pagecommand={\thispagestyle{headings}}]{rack1/switch16.pdf}
+
+\newpage
+
+\section{Rack2}
+
+\begin{figure}[h!]
+\begin{center}
+\resizebox{!}{150mm}{\includegraphics {rack2/rack2.pdf} }
+\caption{Rack 2, Rear view}
+\label{fig:Rack2}
+\end{center}
+\end{figure}
+
+\newpage
+\subsection{serial connections}
+The serial connections are not as per the diagram. Add list.
+\subsection{spare connnections\label{ref:rack2spare}}
+
+\emph{NOTE :}  These are not complete. The following cables have been
+fitted.
+\begin{itemize}
+\item 2 green
+\item 3 yellow
+\item 5 x 4 grey
+\item no power
+\item no console
+\end{itemize}
+
+In this rack we also wish to have 5 spare sets of connections cabled
+in, to allow for future expansion. The spare connections are to
+consist of :
+\begin{itemize}
+\item 1 idc power cord (black) 
+\item 4 experimental connections (grey)
+\item 1 management connection (green)
+\item 1 infrastructure connection (yellow)
+\item 1 console cable (blue, standard cable)
+\end{itemize}
+
+Each cable must have enough slack to enable it to be plugged into any
+position across the 1U slot. 
+
+The spare sets are to be places at rack positions 4 to 8.
+\\
+\subsubsection{Spare set 1}
+Power (Black), Powerswitch X, port, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 4/25, 5/25, 6/25, 7/25\\
+1 (Green) Management connection , Switch 11 port 11\\
+1 (Yellow) Infrastructure connection, Switch 11 port 35\\
+1 (Blue) Console connection, Serial 2 port 26\\
+\\
+\subsubsection{Spare set 2}
+Power (Black), Powerswitch X, port, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 4/26, 5/26, 6/26, 7/26\\
+1 (Green) Management connection , Switch 11 port 12\\
+1 (Yellow) Infrastructure connection, Switch 11 port 36\\
+1 (Blue) Console connection, Serial 2 port 27\\
+\\
+\subsubsection{Spare set 3}
+Power (Black), Powerswitch X, port, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 4/27, 5/27, 6/27, 7/27\\
+1 (Green) Management connection , Switch 11 port 13\\
+1 (Yellow) Infrastructure connection, Switch 11 port 37\\
+1 (Blue) Console connection, Serial 2 port 28\\
+\\
+\subsubsection{Spare set 4}
+Power (Black), Powerswitch X, port, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 4/28, 5/28, 6/28, 7/28\\
+1 (Green) Management connection , Switch 11 port 14\\
+1 (Yellow) Infrastructure connection, Switch 11 port 38\\
+1 (Blue) Console connection, Serial 2 port 29\\
+\\
+\subsubsection{Spare set 5}
+Power (Black), Powerswitch X, port, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 4/29, 5/29, 6/29, 7/29\\
+1 (Green) Management connection , Switch 11 port 15\\
+1 (Yellow) Infrastructure connection, Switch 11 port 39\\
+1 (Blue) Console connection, Serial 2 port 30\\
+\newpage
+
+\includepdf[nup=1x1, landscape,
+column=false,pages=1,
+addtotoc={1,subsection,2,Dell 1950,},
+pagecommand={\thispagestyle{headings}}]{rack2/dell1950.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 5,},
+  pagecommand={\thispagestyle{headings}}]{rack2/powerswitch5.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 8,},
+  pagecommand={\thispagestyle{headings}}]{rack2/powerswitch8.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,serial 2,},
+  pagecommand={\thispagestyle{headings}}]{rack2/serial2.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 11,},
+  pagecommand={\thispagestyle{headings}}]{rack2/switch11.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 15,},
+  pagecommand={\thispagestyle{headings}}]{rack2/switch15.pdf}
+
+\section{Rack3}
+
+\begin{figure}[h!]
+\begin{center}
+\resizebox{!}{150mm}{\includegraphics {rack3/rack3.pdf} }
+\caption{Rack 3, Rear view}
+\label{fig:Rack3}
+\end{center}
+\end{figure}
+
+\newpage
+
+\includepdf[nup=1x1, landscape,
+column=false,pages=1,
+addtotoc={1,subsection,2,sun x4100,},
+pagecommand={\thispagestyle{headings}}]{rack3/x4100.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 10,},
+  pagecommand={\thispagestyle{headings}}]{rack3/powerswitch10.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 9,},
+  pagecommand={\thispagestyle{headings}}]{rack3/powerswitch9.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,serial 4,},
+  pagecommand={\thispagestyle{headings}}]{rack3/serial4.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 7,},
+  pagecommand={\thispagestyle{headings}}]{rack3/switch7.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 12,},
+  pagecommand={\thispagestyle{headings}}]{rack3/switch12.pdf}
+
+\section{Rack4}
+
+\begin{figure}[h!]
+\begin{center}
+\resizebox{!}{140mm}{\includegraphics {rack4/rack4.pdf} }
+\caption{Rack 4, Rear view}
+\label{fig:Rack4}
+\end{center}
+\end{figure}
+
+\input{rack4/rack4}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 4,},
+  pagecommand={\thispagestyle{headings}}]{rack4/powerswitch13.pdf}
+
+\includepdf[nup=1x1, landscape,
+column=false,pages=1,
+addtotoc={1,subsection,2,Dell 2950 (6 interface),},
+pagecommand={\thispagestyle{headings}}]{rack4/dell2950-3interface.pdf}
+
+
+
+Specific connections not marked on force 10 diagram
+\\
+Switch 10, port 24 to Force10,Slot 11, Port 0\\
+Switch 12, port 24 to Force10, Slot 11, Port 1\\
+Switch 7, port 24 to Force10, Slot 11, Port 2\\
+\\
+Arkell, port Net3 to Force10, Slot 11, Port 12\\
+Cockerel, port Net2 to Force10, Slot 11, Port 13\\
+\\
+
+
+\newpage
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,force10 switch,},
+  pagecommand={\thispagestyle{headings}}]{rack4/force10.pdf}
+
+\section{Rack5}
+
+Please see notes 3, 4, and 5.
+
+\begin{figure}[h!]
+\begin{center}
+\resizebox{!}{140mm}{
+\includegraphics{rack5/rack5.pdf} 
+}
+\caption{Rack 5, Rear view}
+\label{fig:Rack5}
+\end{center}
+\end{figure}
+
+\subsection{Spare connections\label{ref:rack5spare}}
+
+\emph{NOTE : } The following connections are missing
+\begin{itemize}
+\item Power (Black), Powerswitch 6, port 10, male to female idc\\
+\item 1 (Blue) Console connection, Serial 5 port 16\\
+\item Power (Black), Powerswitch 6, port 11, male to female idc\\
+\item 1 (Blue) Console connection, Serial 5 port 17\\
+\end{itemize}
+
+In this rack we also wish to have 2 spare sets of connections cabled
+in, to allow for future expansion. The spare connections are to
+consist of : 
+\begin{itemize}
+\item 1 idc power cord (black) 
+\item 4 experimental connections (grey)
+\item 1 management connection (green)
+\item 1 infrastructure connection (yellow)
+\item 1 console cable (blue, standard cable)
+\end{itemize}
+
+Each cable must have enough slack to enable it to be plugged into any
+position across the 1U slot. 
+
+The spare sets are to be places at rack positions 14 and 18.
+\\
+\subsubsection{Spare set 1}
+Power (Black), Powerswitch 6, port 10, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 0/43, 1/43, 2/43, 3/43\\
+1 (Green) Management connection , Switch 10 port 16\\
+1 (Yellow) Infrastructure connection, Switch 10 port 31\\
+1 (Blue) Console connection, Serial 5 port 16\\
+\\
+\subsubsection{Spare set 2}
+Power (Black), Powerswitch 6, port 11, male to female idc\\
+4 (Grey) experimental connections , Force10 switch ports 0/44, 1/44, 2/44, 3/44\\
+1 (Green) Management connection , Switch 10 port 17\\
+1 (Yellow) Infrastructure connection, Switch 10 port 32\\
+1 (Blue) Console connection, Serial 5 port 17\\
+
+\newpage
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,dell 1850,},
+  pagecommand={\thispagestyle{headings}}]{rack5/dell1850.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,dell optiplex,},
+  pagecommand={\thispagestyle{headings}}]{rack5/delloptiplex.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 6,},
+  pagecommand={\thispagestyle{headings}}]{rack5/powerswitch6.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,serial 5,},
+  pagecommand={\thispagestyle{headings}}]{rack5/serial5.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,sun v20z,},
+  pagecommand={\thispagestyle{headings}}]{rack5/sunv20z.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 1,},
+  pagecommand={\thispagestyle{headings}}]{rack5/switch1.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 10,},
+  pagecommand={\thispagestyle{headings}}]{rack5/switch10.pdf}
+
+\section{Rack6}
+
+\begin{figure}[h!]
+\begin{center}
+\resizebox{!}{150mm}{\includegraphics {rack6/rack6.pdf} }
+\caption{Rack 6, Rear view}
+\label{fig:Rack6}
+\end{center}
+\end{figure}
+
+
+\newpage
+
+\includepdf[nup=1x1, landscape, column=false,pages=1,addtotoc={1,subsection,2,arkell,},
+  pagecommand={\thispagestyle{headings}}]{rack6/arkell.pdf}
+
+\includepdf[nup=1x1, landscape, column=false,pages=1,addtotoc={1,subsection,2,cockerel,},
+  pagecommand={\thispagestyle{headings}}]{rack6/cockerel.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,powerswitch 3,},
+  pagecommand={\thispagestyle{headings}}]{rack6/powerswitch3.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,serial 3,},
+  pagecommand={\thispagestyle{headings}}]{rack6/serial3.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 3,},
+  pagecommand={\thispagestyle{headings}}]{rack6/switch3.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 4,},
+  pagecommand={\thispagestyle{headings}}]{rack6/switch4.pdf}
+
+\includepdf[nup=1x1, landscape,
+  column=false,pages=1,addtotoc={1,subsection,2,switch 5,},
+  pagecommand={\thispagestyle{headings}}]{rack6/switch5.pdf}
+
+\section{Underfloor wiring}
+
+\newpage
+
+\includepdf[nup=1x1, landscape, 
+  column=false,pages=1,addtotoc={1,subsection,2,underfloor wiring,},
+  pagecommand={\thispagestyle{headings}}]{underfloor/underfloor.pdf}
+
+\end{document}

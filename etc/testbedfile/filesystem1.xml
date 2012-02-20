@@ -1,0 +1,10 @@
+<filenode id="filesystem1" type="filesystem" path="/export/filesystems/standard/gentoo-normal" owner="root" architecture="x86_64" ostype="linux" version="none" mustclone="yes">
+
+      <attribute name="distribution" value="gentoo" />
+
+      <md5signature>cdac577c051ae00544666bbbd03e95b2</md5signature>
+      <description>A basic gentoo linux filesystem</description>
+
+      <usermanagement username="root" password="arsearse" />
+
+</filenode>

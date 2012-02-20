@@ -1,0 +1,17 @@
+<log>
+	<logentry date="08/09/2006" time="16:07" authorloginid="fhuici" >
+		<affectedelement id="computer3" />
+		<affectedelement id="computer8" />
+		<affectedelement id="computer13" />
+		<description>
+		removed all Intel e1000 cards due to poor performance
+		</description>
+	</logentry>
+	<logentry date="08/09/2006" time="16:07" authorloginid="adam" >
+		<affectedelement id="computer3" />
+		<affectedelement id="computer6" />
+		<description>
+		removed faulty fans
+		</description>
+	</logentry>
+</log>

@@ -1,0 +1,11 @@
+<infrastructure type="rack" id="rack100"  vendor="apc" model="rack42"
+description="my good rack" building="malet" floor="4th" room="4.15">
+
+      <physicalsize height="220" width="100" depth="120" numberunits="42" />
+
+      <attribute name="rearrightslots" value="2" />
+      <attribute name="rearleftslots" value="2" />
+      <attribute name="rackrow" value="1" />
+      <attribute name="rowposition" value="3" />
+
+</infrastructure>

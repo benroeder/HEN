@@ -1,0 +1,18 @@
+<rights>
+  <right id="1" username="atanu" email="atanu@icir.org" maxweeks="12">
+    <device id="computer101" />
+    <device id="computer102" />
+  </right>
+  <right id="2" username="ucacsva" email="S.Varakliotis@cs.ucl.ac.uk" maxweeks="12">
+    <device id="computer104" />
+    <device id="computer105" />
+    <device id="computer106" />
+    <device id="computer107" />
+  </right>
+  <right id="3" username="fhuici" email="f.huici@cs.ucl.ac.uk" maxweeks="12">
+    <device id="computer68" />
+  </right>
+  <right id="4" username="fhuici" email="f.huici@cs.ucl.ac.uk" maxweeks="12">
+    <device id="computer69" />
+  </right>
+</rights>

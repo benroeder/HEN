@@ -1,0 +1,6 @@
+<filenode id="loader5" type="loader" path="/export/loaders/fhuici/pxelinux.0.0" owner="fhuici" architecture="x86_64" ostype="linux" version="2.6" mustclone="no">
+
+      <md5signature>973171a091ec8ba2eb4a886def811ce4</md5signature>
+      <description>My own basic linux loader</description>
+
+</filenode>
