@@ -1,1 +1,5 @@
 Forked from http://mediatools.cs.ucl.ac.uk/nets/hen
+
+Welcome to Hen
+HEN (Heterogeneous Experimental Network) is a test-bed designed for conducting a wide range of network experiments, from congestion control, large-scale routing, Denial-of-Service and others to experiments in mobile systems and sensor networks. To achieve this, the core of HEN will consist of about 80 to 100 computer nodes, each having 4 Gigabit experimental interfaces and one Gigabit management interface used for netbooting the node, controlling the experiment, and backing up the results. In addition to the computer nodes, a number of routers and other networking equipment will be included in Hen as experimental equipment. The testbed will also include a large amount of wireless equipment, including 802.11 and sensors.
+
